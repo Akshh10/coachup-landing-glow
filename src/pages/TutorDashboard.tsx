@@ -33,7 +33,7 @@ const TutorDashboard: React.FC = () => {
       subject: "Physics",
       date: "June 15, 2023",
       time: "3:00 PM - 4:00 PM",
-      status: "upcoming",
+      status: "upcoming" as const,
       duration: 1
     },
     {
@@ -43,7 +43,7 @@ const TutorDashboard: React.FC = () => {
       subject: "Calculus",
       date: "June 16, 2023",
       time: "5:00 PM - 6:30 PM",
-      status: "upcoming",
+      status: "upcoming" as const,
       duration: 1.5
     }
   ];
@@ -96,21 +96,21 @@ const TutorDashboard: React.FC = () => {
         date: "June 10, 2023",
         studentName: "Michael Thompson",
         amount: 45,
-        status: "completed"
+        status: "completed" as const
       },
       {
         id: "2",
         date: "June 5, 2023",
         studentName: "Emma Davis",
         amount: 67.50,
-        status: "completed"
+        status: "completed" as const
       },
       {
         id: "3",
         date: "June 2, 2023",
         studentName: "Alex Johnson",
         amount: 45,
-        status: "completed"
+        status: "completed" as const
       }
     ]
   };
