@@ -23,14 +23,12 @@ const Navbar = () => {
           <div className="flex gap-8">
             <a href="#how-it-works" className="text-gray-600 hover:text-primary transition-colors">How It Works</a>
             <a href="#subjects" className="text-gray-600 hover:text-primary transition-colors">Subjects</a>
-            <a href="#why-us" className="text-gray-600 hover:text-primary transition-colors">Why Choose Us</a>
           </div>
           <div className="flex gap-4">
-            <Link to="/student-dashboard">
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">Find a Tutor</Button>
-            </Link>
-            <Link to="/tutor-dashboard">
-              <Button className="bg-primary text-white hover:bg-primary/90">Apply as a Coach</Button>
+            <Link to="/signup">
+              <Button className="bg-primary text-white hover:bg-primary/90 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20">
+                Sign Up
+              </Button>
             </Link>
           </div>
         </div>
@@ -61,21 +59,9 @@ const Navbar = () => {
             >
               Subjects
             </a>
-            <a 
-              href="#why-us" 
-              className="text-gray-600 hover:text-primary transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Why Choose Us
-            </a>
-            <Link to="/student-dashboard" onClick={() => setIsMenuOpen(false)}>
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/5 w-full">
-                Find a Tutor
-              </Button>
-            </Link>
-            <Link to="/tutor-dashboard" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
               <Button className="bg-primary text-white hover:bg-primary/90 w-full">
-                Apply as a Coach
+                Sign Up
               </Button>
             </Link>
           </div>

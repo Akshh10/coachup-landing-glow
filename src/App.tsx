@@ -11,9 +11,17 @@ import TutorDashboard from "./pages/TutorDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import TutorProfile from "./pages/TutorProfile";
 import BookingPage from "./pages/BookingPage";
+import SignUp from "./pages/SignUp";
 
 // Create a client
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1
+    }
+  }
+});
 
 const App = () => {
   return (
@@ -25,6 +33,7 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/signup" element={<SignUp />} />
               <Route path="/tutor-dashboard" element={<TutorDashboard />} />
               <Route path="/student-dashboard" element={<StudentDashboard />} />
               <Route path="/tutor/:id" element={<TutorProfile />} />
