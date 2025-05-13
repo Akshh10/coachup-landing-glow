@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 215 75% 30%; /* Soft navy blue */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -23,17 +23,17 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 175 75% 30%; /* Subtle teal */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 215 75% 30%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -94,6 +94,33 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+@layer components {
+  .cta-button {
+    @apply relative overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg;
+  }
+  
+  .cta-button::after {
+    @apply absolute inset-0 bg-white opacity-0 transition-opacity duration-300;
+    content: "";
+  }
+  
+  .cta-button:hover::after {
+    @apply opacity-20;
+  }
+  
+  .section-container {
+    @apply py-16 md:py-24 opacity-0;
+  }
+  
+  .animate-section {
+    @apply animate-fade-in-up;
+  }
+  
+  .card-shadow {
+    @apply shadow-lg hover:shadow-xl transition-shadow duration-300;
   }
 }
