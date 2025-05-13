@@ -15,14 +15,14 @@ const Navbar = () => {
     <nav className="bg-white py-4 sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
         <div className="flex items-center">
-          <Link to="/" className="text-2xl font-bold text-primary">CoachUp</Link>
+          <Link to="/" className="text-2xl font-bold text-primary">UpSkill</Link>
         </div>
         
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-10">
           <div className="flex gap-8">
-            <a href="#how-it-works" className="text-gray-600 hover:text-primary transition-colors">How It Works</a>
-            <a href="#subjects" className="text-gray-600 hover:text-primary transition-colors">Subjects</a>
+            <a href="#skills" className="text-gray-600 hover:text-primary transition-colors">Skills</a>
+            <a href="#blogs" className="text-gray-600 hover:text-primary transition-colors">Insights</a>
           </div>
           <div className="flex gap-4">
             <Link to="/signup">
@@ -46,18 +46,18 @@ const Navbar = () => {
         <div className="md:hidden bg-white py-4 px-6 shadow-md absolute w-full">
           <div className="flex flex-col space-y-4">
             <a 
-              href="#how-it-works" 
+              href="#skills" 
               className="text-gray-600 hover:text-primary transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
-              How It Works
+              Skills
             </a>
             <a 
-              href="#subjects" 
+              href="#blogs" 
               className="text-gray-600 hover:text-primary transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
-              Subjects
+              Insights
             </a>
             <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
               <Button className="bg-primary text-white hover:bg-primary/90 w-full">
