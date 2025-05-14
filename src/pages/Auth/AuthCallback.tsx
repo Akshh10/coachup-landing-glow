@@ -13,10 +13,9 @@ const AuthCallback = () => {
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const location = useLocation();
-  const { role, profile } = useAuth();
+  const { role } = useAuth();
   
   console.log('AuthCallback rendered, current role:', role);
-  console.log('AuthCallback profile data:', profile);
 
   // Detect role from URL or user profile
   useEffect(() => {
@@ -50,14 +49,6 @@ const AuthCallback = () => {
         console.log('User found in session:', user.id);
         setUserId(user.id);
         
-        // If role already set in the auth context, use that
-        if (role) {
-          console.log('Role already set in auth context:', role);
-          setShouldRedirect(true);
-          setRedirectPath(role === 'tutor' ? '/tutor-dashboard' : '/student-dashboard');
-          return;
-        }
-        
         // Check if user already has a role in profile
         const { data: profile } = await supabase
           .from('profiles')
@@ -65,12 +56,12 @@ const AuthCallback = () => {
           .eq('id', user.id)
           .single();
           
-        console.log('Profile data from DB:', profile);
+        console.log('Profile data:', profile);
           
         if (profile?.role) {
           // User already has a role, redirect to appropriate dashboard
           const userRole = profile.role.toLowerCase();
-          console.log('User has role from DB:', userRole);
+          console.log('User has role:', userRole);
           
           setShouldRedirect(true);
           setRedirectPath(userRole === 'tutor' ? '/tutor-dashboard' : '/student-dashboard');
@@ -105,7 +96,7 @@ const AuthCallback = () => {
     };
     
     handleAuthCallback();
-  }, [location.search, role]);
+  }, [location.search]);
   
   // Handle dialog close
   const handleDialogClose = (selectedRole?: string) => {

@@ -11,25 +11,11 @@ import AvailabilitySection from "@/components/dashboard/tutor/AvailabilitySectio
 import ReviewsSection from "@/components/dashboard/tutor/ReviewsSection";
 import EarningsSection from "@/components/dashboard/tutor/EarningsSection";
 
-interface TimeSlot {
-  id: string;
-  day: string;
-  startTime: string;
-  endTime: string;
-}
-
-interface AvailabilitySlot {
-  start: string;
-  end: string;
-}
-
-type AvailabilityMap = Record<string, AvailabilitySlot>;
-
 const TutorDashboard: React.FC = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const tab = searchParams.get("tab") || "dashboard";
-  const { user, role, profile } = useAuth();
+  const { user, profile } = useAuth();
   const [tutorProfile, setTutorProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +26,6 @@ const TutorDashboard: React.FC = () => {
       const fetchTutorProfile = async () => {
         try {
           setIsLoading(true);
-          console.log("Fetching tutor profile for user:", user.id);
           
           // Fetch tutor profile data
           const { data, error } = await supabase
@@ -55,7 +40,6 @@ const TutorDashboard: React.FC = () => {
             return;
           }
 
-          console.log("Tutor profile data:", data);
           setTutorProfile(data);
         } catch (err) {
           console.error('Error in tutor dashboard:', err);
@@ -76,7 +60,7 @@ const TutorDashboard: React.FC = () => {
     title: "Tutor",
     rating: 0, // This should come from a ratings table
     subjects: tutorProfile?.subjects || [],
-    hourlyRate: tutorProfile?.hourly_rate || 45,
+    hourlyRate: 45, // This should come from pricing table or tutor profile
     bio: tutorProfile?.experience || "No bio available yet."
   };
   
@@ -105,8 +89,8 @@ const TutorDashboard: React.FC = () => {
   ];
   
   // Parse availability from tutor profile or use default
-  const timeSlots: TimeSlot[] = tutorProfile?.availability 
-    ? Object.entries(tutorProfile.availability as AvailabilityMap).map(([day, slots], index) => ({
+  const timeSlots = tutorProfile?.availability 
+    ? Object.entries(tutorProfile.availability).map(([day, slots], index) => ({
         id: index.toString(),
         day,
         startTime: slots.start,
@@ -190,9 +174,6 @@ const TutorDashboard: React.FC = () => {
       </div>
     );
   }
-  
-  console.log("Rendering tutor dashboard with profile:", combinedProfile);
-  console.log("Current tab:", tab);
   
   const renderContent = () => {
     switch (tab) {

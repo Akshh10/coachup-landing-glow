@@ -25,7 +25,6 @@ const StudentDashboard: React.FC = () => {
       const fetchStudentProfile = async () => {
         try {
           setIsLoading(true);
-          console.log("Fetching student profile for user:", user.id);
           
           // Fetch student profile data
           const { data, error } = await supabase
@@ -40,7 +39,6 @@ const StudentDashboard: React.FC = () => {
             return;
           }
 
-          console.log("Student profile data:", data);
           setStudentProfile(data);
         } catch (err) {
           console.error('Error in student dashboard:', err);
@@ -160,9 +158,6 @@ const StudentDashboard: React.FC = () => {
       </div>
     );
   }
-  
-  console.log("Rendering student dashboard with data:", studentData);
-  console.log("Current tab:", tab);
   
   const renderContent = () => {
     switch (tab) {
