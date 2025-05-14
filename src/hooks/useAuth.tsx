@@ -45,6 +45,7 @@ export const useAuth = () => {
 
   useEffect(() => {
     console.log('Setting up auth state listener');
+    let isInitialLoad = true;
     
     // First set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -66,17 +67,21 @@ export const useAuth = () => {
           setProfile(null);
         }
 
-        if (event === 'SIGNED_IN') {
-          toast({
-            title: "Signed in successfully",
-          });
-        } else if (event === 'SIGNED_OUT') {
-          toast({
-            title: "Signed out successfully",
-          });
+        // Only show toast notifications after the initial load
+        if (!isInitialLoad) {
+          if (event === 'SIGNED_IN') {
+            toast({
+              title: "Signed in successfully",
+            });
+          } else if (event === 'SIGNED_OUT') {
+            toast({
+              title: "Signed out successfully",
+            });
+          }
         }
         
         setIsLoading(false);
+        isInitialLoad = false;
       }
     );
 
@@ -94,6 +99,7 @@ export const useAuth = () => {
       }
       
       setIsLoading(false);
+      isInitialLoad = false;
     });
 
     return () => {

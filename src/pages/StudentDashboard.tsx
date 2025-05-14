@@ -11,6 +11,32 @@ import PreviousSessionsSection from "@/components/dashboard/student/PreviousSess
 import RecommendedTutorsSection from "@/components/dashboard/student/RecommendedTutorsSection";
 import { toast } from "@/components/ui/use-toast";
 
+// First, let's update the interface definitions to match the components
+interface Session {
+  id: string;
+  tutorName: string;
+  tutorPhoto?: string;
+  tutorId: string;
+  subject: string;
+  date: string;
+  time: string;
+  duration: number;
+}
+
+interface PreviousSession extends Session {
+  isRated: boolean;
+}
+
+interface Tutor {
+  id: string;
+  name: string;
+  photo: string;
+  subjects: string[];
+  hourlyRate: number;
+  rating: number;
+  totalReviews: number;
+}
+
 const StudentDashboard: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -33,7 +59,7 @@ const StudentDashboard: React.FC = () => {
             .from('student_profiles')
             .select('*')
             .eq('id', user.id)
-            .single();
+            .maybeSingle();
 
           if (error) {
             console.error('Error fetching student profile:', error);
@@ -69,7 +95,7 @@ const StudentDashboard: React.FC = () => {
   const tutorIds = ["tutor-1", "tutor-2"]; 
   
   // Mock data for now - replace with real data from Supabase in future
-  const upcomingSessions = [
+  const upcomingSessions: Session[] = [
     {
       id: "1",
       tutorName: "Dr. Sarah Johnson",
@@ -92,7 +118,7 @@ const StudentDashboard: React.FC = () => {
     }
   ];
   
-  const previousSessions = [
+  const previousSessions: PreviousSession[] = [
     {
       id: "1",
       tutorName: "Dr. Sarah Johnson",
@@ -117,7 +143,7 @@ const StudentDashboard: React.FC = () => {
     }
   ];
   
-  const recommendedTutors = [
+  const recommendedTutors: Tutor[] = [
     {
       id: tutorIds[0],
       name: "Dr. Sarah Johnson",
@@ -139,7 +165,7 @@ const StudentDashboard: React.FC = () => {
   ];
   
   const handleTutorClick = (tutorId: string) => {
-    navigate(`/tutor-profile/${tutorId}`);
+    navigate(`/tutor/${tutorId}`);
   };
   
   const handleSessionBooking = (tutorId: string) => {

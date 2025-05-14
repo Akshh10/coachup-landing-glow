@@ -94,7 +94,7 @@ const RedirectToDashboard = () => {
 };
 
 const App = () => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   
   return (
     <QueryClientProvider client={queryClient}>
@@ -113,9 +113,28 @@ const App = () => {
             
             {/* Auth and Onboarding Routes */}
             <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/role-select" element={<RoleSelectDialog />} />
-            <Route path="/tutor-onboarding" element={<TutorOnboarding />} />
-            <Route path="/student-onboarding" element={<StudentOnboarding />} />
+            <Route 
+              path="/role-select" 
+              element={
+                !user ? <Navigate to="/login" replace /> : <RoleSelectDialog />
+              }
+            />
+            
+            <Route 
+              path="/tutor-onboarding" 
+              element={
+                !user ? <Navigate to="/login" replace /> : 
+                  <TutorOnboarding />
+              }
+            />
+            
+            <Route 
+              path="/student-onboarding" 
+              element={
+                !user ? <Navigate to="/login" replace /> : 
+                  <StudentOnboarding />
+              }
+            />
 
             {/* Content Pages */}
             <Route path="/skills" element={<Skills />} />
@@ -123,7 +142,7 @@ const App = () => {
 
             {/* Protected Routes */}
             <Route
-              path="/tutor-dashboard"
+              path="/tutor-dashboard/*"
               element={
                 <ProtectedRoute requiredRole="tutor">
                   <TutorDashboard />
@@ -131,7 +150,7 @@ const App = () => {
               }
             />
             <Route
-              path="/student-dashboard"
+              path="/student-dashboard/*"
               element={
                 <ProtectedRoute requiredRole="student">
                   <StudentDashboard />

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,6 +26,7 @@ import { LogOut, User, Calendar, MessageSquare, Book } from "lucide-react";
 const Navbar = () => {
   const { user, role, signOut } = useAuth();
   const location = useLocation();
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
   
   // Check if we're on the homepage
   const isHomepage = location.pathname === '/';
@@ -68,7 +69,7 @@ const Navbar = () => {
               )}>
                 Skills
               </NavigationMenuTrigger>
-              <NavigationMenuContent className="bg-white p-4 rounded-md shadow-lg w-[500px]">
+              <NavigationMenuContent className="bg-white p-4 rounded-md shadow-lg w-[500px] z-50">
                 <div className="grid grid-cols-2 gap-4">
                   {skillCategories.map((category) => (
                     <div key={category.title}>
@@ -142,7 +143,7 @@ const Navbar = () => {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 z-50">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>

@@ -73,14 +73,16 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
             setInputValue(e.target.value);
             if (e.target.value.trim() !== '') {
               setIsOpen(true);
-            } else {
-              setIsOpen(false); // Close dropdown if input is empty
             }
           }}
           onFocus={() => setIsOpen(true)}
-          onBlur={() => {
-            // Delay to allow for click events on dropdown items
-            setTimeout(() => setIsOpen(false), 200);
+          onBlur={(e) => {
+            // Don't close immediately to allow for click on option
+            setTimeout(() => {
+              if (document.activeElement !== e.target) {
+                setIsOpen(false);
+              }
+            }, 150);
           }}
           placeholder={value.length === 0 ? placeholder : ""}
           className="flex-grow border-none outline-none bg-transparent p-1 text-sm"
@@ -92,7 +94,10 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
           {filteredOptions.map(option => (
             <div
               key={option}
-              onClick={() => handleSelect(option)}
+              onMouseDown={(e) => {
+                e.preventDefault(); // Prevent blur
+                handleSelect(option);
+              }}
               className="p-2 hover:bg-[#F0F4FF] cursor-pointer text-sm"
             >
               {option}
