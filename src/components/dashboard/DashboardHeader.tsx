@@ -33,7 +33,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     toast({
       title: "Signed out successfully",
     });
-    navigate('/');
+    navigate('/', { replace: true });
   };
 
   const handleMessageClick = () => {
@@ -41,6 +41,10 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       title: "Messages",
       description: "Message feature will be available soon!",
     });
+  };
+  
+  const handleProfileClick = () => {
+    navigate('/profile');
   };
 
   return (
@@ -94,7 +98,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem onClick={() => navigate("/profile")}>
+              <DropdownMenuItem onClick={handleProfileClick}>
                 <User className="mr-2 h-4 w-4" />
                 <span>My Profile</span>
               </DropdownMenuItem>

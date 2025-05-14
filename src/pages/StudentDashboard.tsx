@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from "@/hooks/useAuth";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -9,9 +9,11 @@ import WelcomeSection from "@/components/dashboard/student/WelcomeSection";
 import UpcomingSessionsSection from "@/components/dashboard/student/UpcomingSessionsSection";
 import PreviousSessionsSection from "@/components/dashboard/student/PreviousSessionsSection";
 import RecommendedTutorsSection from "@/components/dashboard/student/RecommendedTutorsSection";
+import { toast } from "@/components/ui/use-toast";
 
 const StudentDashboard: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const tab = searchParams.get("tab") || "dashboard";
   const { user, profile } = useAuth();
@@ -63,12 +65,16 @@ const StudentDashboard: React.FC = () => {
     learningGoals: studentProfile?.learning_goals || 'Not specified'
   };
   
+  // Simulated tutor IDs to connect with profile pages
+  const tutorIds = ["tutor-1", "tutor-2"]; 
+  
   // Mock data for now - replace with real data from Supabase in future
   const upcomingSessions = [
     {
       id: "1",
       tutorName: "Dr. Sarah Johnson",
       tutorPhoto: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1760&q=80",
+      tutorId: tutorIds[0],
       subject: "Physics",
       date: "June 15, 2023",
       time: "3:00 PM - 4:00 PM",
@@ -78,6 +84,7 @@ const StudentDashboard: React.FC = () => {
       id: "2",
       tutorName: "Prof. David Chen",
       tutorPhoto: "https://i.pravatar.cc/150?u=davidchen",
+      tutorId: tutorIds[1],
       subject: "Calculus",
       date: "June 18, 2023",
       time: "2:00 PM - 3:30 PM",
@@ -90,7 +97,7 @@ const StudentDashboard: React.FC = () => {
       id: "1",
       tutorName: "Dr. Sarah Johnson",
       tutorPhoto: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1760&q=80",
-      tutorId: "1",
+      tutorId: tutorIds[0],
       subject: "Physics",
       date: "June 1, 2023",
       time: "3:00 PM - 4:00 PM",
@@ -101,7 +108,7 @@ const StudentDashboard: React.FC = () => {
       id: "2",
       tutorName: "Prof. David Chen",
       tutorPhoto: "https://i.pravatar.cc/150?u=davidchen",
-      tutorId: "2",
+      tutorId: tutorIds[1],
       subject: "Calculus",
       date: "May 25, 2023",
       time: "2:00 PM - 3:30 PM",
@@ -112,7 +119,7 @@ const StudentDashboard: React.FC = () => {
   
   const recommendedTutors = [
     {
-      id: "1",
+      id: tutorIds[0],
       name: "Dr. Sarah Johnson",
       photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1760&q=80",
       subjects: ["Physics", "Calculus", "Algebra", "Quantum Mechanics"],
@@ -121,7 +128,7 @@ const StudentDashboard: React.FC = () => {
       totalReviews: 124
     },
     {
-      id: "2",
+      id: tutorIds[1],
       name: "Prof. David Chen",
       photo: "https://i.pravatar.cc/150?u=davidchen",
       subjects: ["Calculus", "Algebra", "Statistics"],
@@ -130,6 +137,25 @@ const StudentDashboard: React.FC = () => {
       totalReviews: 98
     }
   ];
+  
+  const handleTutorClick = (tutorId: string) => {
+    navigate(`/tutor-profile/${tutorId}`);
+  };
+  
+  const handleSessionBooking = (tutorId: string) => {
+    navigate(`/booking/${tutorId}`);
+    toast({
+      title: "Booking initiated",
+      description: "You're being redirected to book a session with this tutor."
+    });
+  };
+  
+  const handleMessageTutor = (tutorId: string, tutorName: string) => {
+    toast({
+      title: "Message feature",
+      description: `Opening chat with ${tutorName}. This feature will be available soon!`
+    });
+  };
   
   // Loading state
   if (isLoading) {
@@ -159,17 +185,66 @@ const StudentDashboard: React.FC = () => {
     );
   }
   
+  // Display academic or skills information based on what's available
+  const renderEducationInfo = () => {
+    if (studentProfile?.grade_level) {
+      return (
+        <div className="mb-4">
+          <h3 className="font-medium text-gray-700">Academic Information</h3>
+          <div className="mt-1 text-sm">
+            <p><span className="font-medium">Grade Level:</span> {studentProfile.grade_level}</p>
+            {studentProfile?.preferred_subjects?.length > 0 && (
+              <p className="mt-1">
+                <span className="font-medium">Subjects:</span> {studentProfile.preferred_subjects.join(', ')}
+              </p>
+            )}
+          </div>
+        </div>
+      );
+    } else if (studentProfile?.preferred_subjects?.length > 0) {
+      return (
+        <div className="mb-4">
+          <h3 className="font-medium text-gray-700">Skills Interest</h3>
+          <div className="mt-1 text-sm">
+            <p>
+              <span className="font-medium">Skills:</span> {studentProfile.preferred_subjects.join(', ')}
+            </p>
+            {studentProfile?.learning_goals && (
+              <p className="mt-1">
+                <span className="font-medium">Learning Goals:</span> {studentProfile.learning_goals}
+              </p>
+            )}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+  
   const renderContent = () => {
     switch (tab) {
       case "sessions":
         return (
           <div className="space-y-6">
-            <UpcomingSessionsSection sessions={upcomingSessions} />
-            <PreviousSessionsSection sessions={previousSessions} />
+            <UpcomingSessionsSection 
+              sessions={upcomingSessions} 
+              onTutorClick={handleTutorClick}
+            />
+            <PreviousSessionsSection 
+              sessions={previousSessions} 
+              onTutorClick={handleTutorClick}
+            />
           </div>
         );
       case "find-tutors":
-        return <RecommendedTutorsSection tutors={recommendedTutors} />;
+        return (
+          <RecommendedTutorsSection 
+            tutors={recommendedTutors} 
+            onTutorClick={handleTutorClick}
+            onBookingClick={handleSessionBooking}
+            onMessageClick={handleMessageTutor}
+          />
+        );
       default:
         return (
           <div className="space-y-6">
@@ -178,8 +253,17 @@ const StudentDashboard: React.FC = () => {
               upcomingSessions={studentData.upcomingSessions}
               completedSessions={studentData.completedSessions}
             />
-            <UpcomingSessionsSection sessions={upcomingSessions} />
-            <RecommendedTutorsSection tutors={recommendedTutors} />
+            {renderEducationInfo()}
+            <UpcomingSessionsSection 
+              sessions={upcomingSessions}
+              onTutorClick={handleTutorClick}
+            />
+            <RecommendedTutorsSection 
+              tutors={recommendedTutors.slice(0, 2)} 
+              onTutorClick={handleTutorClick}
+              onBookingClick={handleSessionBooking}
+              onMessageClick={handleMessageTutor}
+            />
           </div>
         );
     }

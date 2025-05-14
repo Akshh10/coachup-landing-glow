@@ -73,9 +73,15 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
             setInputValue(e.target.value);
             if (e.target.value.trim() !== '') {
               setIsOpen(true);
+            } else {
+              setIsOpen(false); // Close dropdown if input is empty
             }
           }}
           onFocus={() => setIsOpen(true)}
+          onBlur={() => {
+            // Delay to allow for click events on dropdown items
+            setTimeout(() => setIsOpen(false), 200);
+          }}
           placeholder={value.length === 0 ? placeholder : ""}
           className="flex-grow border-none outline-none bg-transparent p-1 text-sm"
         />
