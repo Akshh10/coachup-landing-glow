@@ -10,7 +10,6 @@ import {
   Home, 
   FileText, 
   Search, 
-  Settings, 
   LogOut 
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -46,7 +45,6 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ userType }) => {
     { icon: <Clock size={20} />, label: "Availability", href: "/tutor-dashboard?tab=availability" },
     { icon: <Star size={20} />, label: "Reviews", href: "/tutor-dashboard?tab=reviews" },
     { icon: <FileText size={20} />, label: "Earnings", href: "/tutor-dashboard?tab=earnings" },
-    { icon: <Settings size={20} />, label: "Settings", href: "/tutor-dashboard?tab=settings" },
   ];
 
   const studentLinks: SidebarLink[] = [
@@ -54,8 +52,6 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ userType }) => {
     { icon: <User size={20} />, label: "Profile", href: "/profile" },
     { icon: <Calendar size={20} />, label: "My Sessions", href: "/student-dashboard?tab=sessions" },
     { icon: <Search size={20} />, label: "Find Tutors", href: "/student-dashboard?tab=find-tutors" },
-    { icon: <Star size={20} />, label: "My Favorites", href: "/student-dashboard?tab=favorites" },
-    { icon: <Settings size={20} />, label: "Settings", href: "/student-dashboard?tab=settings" },
   ];
 
   const links = userType === "tutor" ? tutorLinks : studentLinks;
