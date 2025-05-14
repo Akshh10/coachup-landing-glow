@@ -77,25 +77,37 @@ export type Database = {
       tutor_profiles: {
         Row: {
           availability: Json | null
+          available_days: string[] | null
+          available_times: string | null
           created_at: string | null
           experience: string | null
           id: string
+          is_active: boolean | null
+          location: string | null
           subjects: string[] | null
           updated_at: string | null
         }
         Insert: {
           availability?: Json | null
+          available_days?: string[] | null
+          available_times?: string | null
           created_at?: string | null
           experience?: string | null
           id: string
+          is_active?: boolean | null
+          location?: string | null
           subjects?: string[] | null
           updated_at?: string | null
         }
         Update: {
           availability?: Json | null
+          available_days?: string[] | null
+          available_times?: string | null
           created_at?: string | null
           experience?: string | null
           id?: string
+          is_active?: boolean | null
+          location?: string | null
           subjects?: string[] | null
           updated_at?: string | null
         }

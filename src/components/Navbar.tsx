@@ -38,7 +38,7 @@ const Navbar = () => {
       <div className="flex items-center">
         <Link to="/" className={cn(
           "text-2xl font-bold",
-          isHomepage ? "text-white" : "text-[#3E64FF]"
+          isHomepage ? "text-[#3E64FF]" : "text-[#3E64FF]"
         )}>
           UpSkill
         </Link>
@@ -46,39 +46,29 @@ const Navbar = () => {
         <NavigationMenu className="hidden md:flex ml-10">
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger className={isHomepage ? "text-white" : ""}>
-                Subjects
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                  {subjects.map((subject) => (
-                    <ListItem
-                      key={subject.title}
-                      title={subject.title}
-                      href={subject.href}
-                    >
-                      {subject.description}
-                    </ListItem>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
+              <Link to="/skills" className={cn(
+                "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
+                isHomepage ? "text-[#3E64FF]" : "text-[#3E64FF]"
+              )}>
+                Skills
+              </Link>
             </NavigationMenuItem>
             
             <NavigationMenuItem>
               <Link to="/tutors" className={cn(
                 "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                isHomepage ? "text-white" : ""
+                isHomepage ? "text-[#3E64FF]" : "text-[#3E64FF]"
               )}>
                 Find Tutors
               </Link>
             </NavigationMenuItem>
             
             <NavigationMenuItem>
-              <Link to="/about" className={cn(
+              <Link to="/insights" className={cn(
                 "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                isHomepage ? "text-white" : ""
+                isHomepage ? "text-[#3E64FF]" : "text-[#3E64FF]"
               )}>
-                About Us
+                Insights
               </Link>
             </NavigationMenuItem>
           </NavigationMenuList>
@@ -92,7 +82,7 @@ const Navbar = () => {
               variant="ghost" 
               className={cn(
                 "hidden md:flex",
-                isHomepage ? "text-white hover:bg-white/20" : ""
+                isHomepage ? "text-[#3E64FF] hover:bg-white/20" : ""
               )}
               asChild
             >
@@ -159,15 +149,15 @@ const Navbar = () => {
             <Button 
               variant="ghost" 
               className={cn(
-                isHomepage ? "text-white hover:bg-white/20" : ""
+                "text-[#3E64FF] hover:bg-[#3E64FF]/10"
               )}
               asChild
             >
               <Link to="/login">Log in</Link>
             </Button>
             <Button 
-              variant={isHomepage ? "secondary" : "default"} 
-              className={isHomepage ? "bg-white text-[#3E64FF] hover:bg-gray-100" : ""}
+              variant="default" 
+              className="bg-[#3E64FF] hover:bg-[#2D4FD6]"
               asChild
             >
               <Link to="/register">Sign up</Link>
@@ -178,64 +168,5 @@ const Navbar = () => {
     </header>
   );
 };
-
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
-
-const subjects = [
-  {
-    title: "Mathematics",
-    href: "/subjects/mathematics",
-    description: "Algebra, Calculus, Statistics, Geometry and more",
-  },
-  {
-    title: "Science",
-    href: "/subjects/science",
-    description: "Physics, Chemistry, Biology, Computer Science",
-  },
-  {
-    title: "Languages",
-    href: "/subjects/languages",
-    description: "English, Spanish, French, German, Mandarin",
-  },
-  {
-    title: "Humanities",
-    href: "/subjects/humanities",
-    description: "History, Geography, Philosophy, Literature",
-  },
-  {
-    title: "Test Preparation",
-    href: "/subjects/test-prep",
-    description: "SAT, ACT, GRE, GMAT, LSAT, MCAT",
-  },
-  {
-    title: "Professional Skills",
-    href: "/subjects/professional",
-    description: "Business, Marketing, Programming, Design",
-  },
-];
 
 export default Navbar;

@@ -14,6 +14,11 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import AuthCallback from "./pages/Auth/AuthCallback";
 import ProfileEditor from "./pages/ProfileEditor";
+import TutorOnboarding from "./components/onboarding/TutorOnboarding";
+import StudentOnboarding from "./components/onboarding/StudentOnboarding";
+import RoleSelectDialog from "./pages/Auth/RoleSelectDialog";
+import Skills from "./pages/Skills";
+import Insights from "./pages/Insights";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -105,7 +110,16 @@ const App = () => {
               user ? <Navigate to="/auth/callback" replace /> : <Register />
             } />
             <Route path="/signup" element={<Navigate to="/register" replace />} />
+            
+            {/* Auth and Onboarding Routes */}
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/role-select" element={<RoleSelectDialog />} />
+            <Route path="/tutor-onboarding" element={<TutorOnboarding />} />
+            <Route path="/student-onboarding" element={<StudentOnboarding />} />
+
+            {/* Content Pages */}
+            <Route path="/skills" element={<Skills />} />
+            <Route path="/insights" element={<Insights />} />
 
             {/* Protected Routes */}
             <Route
