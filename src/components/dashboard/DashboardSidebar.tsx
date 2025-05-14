@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { 
   User, 
@@ -13,6 +13,8 @@ import {
   Settings, 
   LogOut 
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/components/ui/use-toast";
 
 interface SidebarLink {
   icon: React.ReactNode;
@@ -26,10 +28,20 @@ interface DashboardSidebarProps {
 
 const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ userType }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out successfully",
+    });
+    navigate('/');
+  };
 
   const tutorLinks: SidebarLink[] = [
     { icon: <Home size={20} />, label: "Dashboard", href: "/tutor-dashboard" },
-    { icon: <User size={20} />, label: "Profile", href: "/tutor-dashboard?tab=profile" },
+    { icon: <User size={20} />, label: "Profile", href: "/profile" },
     { icon: <Calendar size={20} />, label: "Bookings", href: "/tutor-dashboard?tab=bookings" },
     { icon: <Clock size={20} />, label: "Availability", href: "/tutor-dashboard?tab=availability" },
     { icon: <Star size={20} />, label: "Reviews", href: "/tutor-dashboard?tab=reviews" },
@@ -39,6 +51,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ userType }) => {
 
   const studentLinks: SidebarLink[] = [
     { icon: <Home size={20} />, label: "Dashboard", href: "/student-dashboard" },
+    { icon: <User size={20} />, label: "Profile", href: "/profile" },
     { icon: <Calendar size={20} />, label: "My Sessions", href: "/student-dashboard?tab=sessions" },
     { icon: <Search size={20} />, label: "Find Tutors", href: "/student-dashboard?tab=find-tutors" },
     { icon: <Star size={20} />, label: "My Favorites", href: "/student-dashboard?tab=favorites" },
@@ -51,14 +64,16 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ userType }) => {
     <div className="h-screen w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm">
       <div className="p-6">
         <Link to="/" className="flex items-center">
-          <span className="text-xl font-bold text-primary">CoachUp</span>
+          <span className="text-xl font-bold text-primary">UpSkill</span>
         </Link>
       </div>
 
       <div className="flex-1 overflow-auto py-6">
         <nav className="space-y-1 px-3">
           {links.map((link) => {
-            const isActive = location.pathname + location.search === link.href;
+            const isActive = location.pathname === link.href || 
+                           (link.href.includes('?') && 
+                            location.pathname + location.search === link.href);
             return (
               <Link
                 key={link.href}
@@ -79,13 +94,13 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ userType }) => {
       </div>
 
       <div className="p-4 border-t border-gray-200">
-        <Link
-          to="/"
-          className="flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 transition-all duration-200"
+        <button
+          onClick={handleSignOut}
+          className="flex items-center w-full px-4 py-3 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 transition-all duration-200"
         >
           <LogOut className="mr-3" size={20} />
           <span>Log Out</span>
-        </Link>
+        </button>
       </div>
     </div>
   );

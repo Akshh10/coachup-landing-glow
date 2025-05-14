@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
-import { toast } from "@/components/ui/use-toast";
+import { toast } from '@/components/ui/use-toast';
 
 interface RoleSelectDialogProps {
   isOpen: boolean;
@@ -13,7 +13,7 @@ interface RoleSelectDialogProps {
 }
 
 const RoleSelectDialog: React.FC<RoleSelectDialogProps> = ({ isOpen, userId, onClose }) => {
-  const [selectedRole, setSelectedRole] = useState<'Student' | 'Tutor'>('Student');
+  const [selectedRole, setSelectedRole] = useState<'student' | 'tutor'>('student');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
@@ -38,12 +38,13 @@ const RoleSelectDialog: React.FC<RoleSelectDialogProps> = ({ isOpen, userId, onC
         description: `You've been registered as a ${selectedRole}`,
       });
       
-      // Redirect based on role
-      if (selectedRole === 'Tutor') {
-        navigate('/tutor-dashboard');
-      } else {
-        navigate('/student-dashboard');
-      }
+      // Call onClose first to update parent state
+      onClose();
+      
+      // Then redirect based on role
+      const redirectPath = selectedRole === 'tutor' ? '/tutor-dashboard' : '/student-dashboard';
+      console.log(`Role set to ${selectedRole}, redirecting to ${redirectPath}`);
+      navigate(redirectPath, { replace: true });
       
     } catch (error) {
       console.error('Error setting user role:', error);
@@ -52,14 +53,16 @@ const RoleSelectDialog: React.FC<RoleSelectDialogProps> = ({ isOpen, userId, onC
         description: "Please try again",
         variant: "destructive",
       });
+      onClose();
     } finally {
       setIsSubmitting(false);
-      onClose();
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) onClose();
+    }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Select Your Role</DialogTitle>
@@ -70,17 +73,19 @@ const RoleSelectDialog: React.FC<RoleSelectDialogProps> = ({ isOpen, userId, onC
         
         <div className="flex gap-4 py-4">
           <Button
-            variant={selectedRole === 'Student' ? 'default' : 'outline'}
-            className={`flex-1 py-6 ${selectedRole === 'Student' ? 'bg-[#3E64FF]' : ''}`}
-            onClick={() => setSelectedRole('Student')}
+            type="button"
+            variant={selectedRole === 'student' ? 'default' : 'outline'}
+            className={`flex-1 py-6 ${selectedRole === 'student' ? 'bg-[#3E64FF]' : ''}`}
+            onClick={() => setSelectedRole('student')}
           >
             I'm a Student
           </Button>
           
           <Button
-            variant={selectedRole === 'Tutor' ? 'default' : 'outline'}
-            className={`flex-1 py-6 ${selectedRole === 'Tutor' ? 'bg-[#32D296]' : ''}`}
-            onClick={() => setSelectedRole('Tutor')}
+            type="button"
+            variant={selectedRole === 'tutor' ? 'default' : 'outline'}
+            className={`flex-1 py-6 ${selectedRole === 'tutor' ? 'bg-[#32D296]' : ''}`}
+            onClick={() => setSelectedRole('tutor')}
           >
             I'm a Tutor
           </Button>
@@ -88,7 +93,7 @@ const RoleSelectDialog: React.FC<RoleSelectDialogProps> = ({ isOpen, userId, onC
         
         <DialogFooter>
           <Button 
-            type="submit" 
+            type="button" 
             onClick={handleSubmit}
             disabled={isSubmitting}
             className="w-full"

@@ -1,7 +1,5 @@
 
 import React from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -15,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import AuthCallback from "./pages/Auth/AuthCallback";
+import ProfileEditor from "./pages/ProfileEditor";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -65,60 +64,72 @@ const ProtectedRoute = ({
 };
 
 const App = () => {
+  const { user } = useAuth();
+
   return (
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={
+              user ? <Navigate to="/auth/callback" replace /> : <Login />
+            } />
+            <Route path="/register" element={
+              user ? <Navigate to="/auth/callback" replace /> : <Register />
+            } />
+            <Route path="/signup" element={<Navigate to="/register" replace />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
 
-              {/* Protected Routes */}
-              <Route
-                path="/tutor-dashboard"
-                element={
-                  <ProtectedRoute requiredRole="tutor">
-                    <TutorDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/student-dashboard"
-                element={
-                  <ProtectedRoute requiredRole="student">
-                    <StudentDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/tutor/:id"
-                element={
-                  <ProtectedRoute>
-                    <TutorProfile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/booking/:tutorId"
-                element={
-                  <ProtectedRoute>
-                    <BookingPage />
-                  </ProtectedRoute>
-                }
-              />
+            {/* Protected Routes */}
+            <Route
+              path="/tutor-dashboard"
+              element={
+                <ProtectedRoute requiredRole="tutor">
+                  <TutorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student-dashboard"
+              element={
+                <ProtectedRoute requiredRole="student">
+                  <StudentDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfileEditor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tutor/:id"
+              element={
+                <ProtectedRoute>
+                  <TutorProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/booking/:tutorId"
+              element={
+                <ProtectedRoute>
+                  <BookingPage />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* Catch-All Route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </React.StrictMode>
+            {/* Catch-All Route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 };
 

@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabaseClient';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +8,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { User, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { supabase } from '@/lib/supabaseClient';
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -20,39 +20,36 @@ const formSchema = z.object({
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { user, role } = useAuth();
+  const { user } = useAuth();
 
   // Redirect if already logged in
   useEffect(() => {
-    if (user && role) {
-      if (role === 'tutor') {
-        navigate('/tutor-dashboard');
-      } else if (role === 'student') {
-        navigate('/student-dashboard');
-      }
+    if (user) {
+      navigate('/auth/callback');
     }
-  }, [user, role, navigate]);
+  }, [user, navigate]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
       password: '',
-    },
+    }
   });
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleLogin = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      setIsLoggingIn(true);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: values.email,
-        password: values.password,
+      setIsLoading(true);
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
       });
 
       if (error) {
@@ -64,32 +61,23 @@ const Login = () => {
         return;
       }
 
-      // Fetch the user's role
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user?.id)
-        .single();
-
       toast({
         title: "Login successful",
         description: "Welcome back!",
       });
+
+      // After successful login, redirect to callback which will handle role-based navigation
+      navigate('/auth/callback');
       
-      if (profile?.role?.toLowerCase() === 'tutor') {
-        navigate('/tutor-dashboard');
-      } else {
-        navigate('/student-dashboard');
-      }
     } catch (error) {
-      console.error('Error during login:', error);
+      console.error('Error signing in:', error);
       toast({
         title: "Something went wrong",
-        description: "Please try again later",
+        description: "Please try again",
         variant: "destructive",
       });
     } finally {
-      setIsLoggingIn(false);
+      setIsLoading(false);
     }
   };
 
@@ -116,16 +104,14 @@ const Login = () => {
           className="w-full max-w-md bg-white bg-opacity-90 backdrop-blur-md rounded-xl shadow-xl p-8"
         >
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-2">
-              Log in to your account
-            </h2>
+            <h2 className="text-xl font-semibold mb-2">Login to Your Account</h2>
             <p className="text-gray-600">
-              Enter your credentials to access your dashboard
+              Enter your credentials to access your account
             </p>
           </div>
           
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="email"
@@ -139,6 +125,7 @@ const Login = () => {
                           type="email" 
                           placeholder="Enter your email" 
                           className="pl-10" 
+                          disabled={isLoading}
                           {...field} 
                         />
                       </FormControl>
@@ -161,6 +148,7 @@ const Login = () => {
                           type={showPassword ? "text" : "password"} 
                           placeholder="Enter your password" 
                           className="pl-10" 
+                          disabled={isLoading}
                           {...field} 
                         />
                       </FormControl>
@@ -168,6 +156,7 @@ const Login = () => {
                         type="button"
                         onClick={togglePasswordVisibility}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
                       >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -186,16 +175,16 @@ const Login = () => {
               <Button 
                 type="submit" 
                 className="w-full py-6 bg-[#3E64FF] hover:bg-[#2D4FD6] text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)] group mt-4"
-                disabled={isLoggingIn}
+                disabled={isLoading}
               >
-                <span>{isLoggingIn ? 'Logging in...' : 'Log In'}</span>
+                <span>{isLoading ? 'Signing In...' : 'Sign In'}</span>
                 <ArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
               </Button>
             </form>
           </Form>
           
           <div className="mt-6 text-center text-gray-600">
-            Don't have an account? <Link to="/register" className="text-[#3E64FF] hover:underline">Sign up</Link>
+            Don't have an account yet? <Link to="/register" className="text-[#3E64FF] hover:underline">Sign up</Link>
           </div>
         </motion.div>
       </div>

@@ -21,7 +21,7 @@ const formSchema = z.object({
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<'Student' | 'Tutor'>('Student');
+  const [role, setRole] = useState<'student' | 'tutor'>('student');
   const [isRegistering, setIsRegistering] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -29,7 +29,7 @@ const Register = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate('/auth/callback');
     }
   }, [user, navigate]);
 
@@ -75,12 +75,9 @@ const Register = () => {
         description: `Welcome to UpSkill, ${values.fullName}!`,
       });
 
-      // Redirect based on role
-      if (role === 'Tutor') {
-        navigate('/tutor-dashboard');
-      } else {
-        navigate('/student-dashboard');
-      }
+      // Redirect to callback which will handle role-based navigation
+      navigate('/auth/callback');
+      
     } catch (error) {
       console.error('Error signing up:', error);
       toast({
@@ -117,10 +114,10 @@ const Register = () => {
         >
           <div className="flex mb-8 bg-gray-100 rounded-lg p-1">
             <button
-              onClick={() => setRole("Student")}
+              onClick={() => setRole("student")}
               type="button"
               className={`flex-1 py-3 text-center rounded-lg transition-all duration-300 ${
-                role === "Student" 
+                role === "student" 
                   ? "bg-white text-[#3E64FF] shadow-md" 
                   : "text-gray-600 hover:bg-gray-200"
               }`}
@@ -128,10 +125,10 @@ const Register = () => {
               I'm a Student
             </button>
             <button
-              onClick={() => setRole("Tutor")}
+              onClick={() => setRole("tutor")}
               type="button"
               className={`flex-1 py-3 text-center rounded-lg transition-all duration-300 ${
-                role === "Tutor" 
+                role === "tutor" 
                   ? "bg-white text-[#32D296] shadow-md" 
                   : "text-gray-600 hover:bg-gray-200"
               }`}
@@ -142,12 +139,12 @@ const Register = () => {
 
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-2">
-              {role === "Student" 
+              {role === "student" 
                 ? "Create your Student Account" 
                 : "Create your Tutor Profile"}
             </h2>
             <p className="text-gray-600">
-              {role === "Student"
+              {role === "student"
                 ? "Get connected with expert tutors to help you achieve your learning goals."
                 : "Share your expertise and help students grow with personalized tutoring sessions."}
             </p>
@@ -167,6 +164,7 @@ const Register = () => {
                         <Input 
                           placeholder="Enter your full name" 
                           className="pl-10" 
+                          disabled={isRegistering}
                           {...field} 
                         />
                       </FormControl>
@@ -189,6 +187,7 @@ const Register = () => {
                           type="email" 
                           placeholder="Enter your email" 
                           className="pl-10" 
+                          disabled={isRegistering}
                           {...field} 
                         />
                       </FormControl>
@@ -211,6 +210,7 @@ const Register = () => {
                           type={showPassword ? "text" : "password"} 
                           placeholder="Create a password" 
                           className="pl-10" 
+                          disabled={isRegistering}
                           {...field} 
                         />
                       </FormControl>
@@ -218,6 +218,7 @@ const Register = () => {
                         type="button"
                         onClick={togglePasswordVisibility}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
                       >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -229,7 +230,7 @@ const Register = () => {
               
               <Button 
                 type="submit" 
-                className={`w-full py-6 ${role === "Student" ? "bg-[#3E64FF] hover:bg-[#2D4FD6]" : "bg-[#32D296] hover:bg-[#28B580]"} text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)] group mt-4`}
+                className={`w-full py-6 ${role === "student" ? "bg-[#3E64FF] hover:bg-[#2D4FD6]" : "bg-[#32D296] hover:bg-[#28B580]"} text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)] group mt-4`}
                 disabled={isRegistering}
               >
                 <span>{isRegistering ? 'Creating Account...' : 'Create Account'}</span>

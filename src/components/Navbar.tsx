@@ -25,7 +25,7 @@ const Navbar = () => {
             <a href="#blogs" className="text-gray-600 hover:text-primary transition-colors">Insights</a>
           </div>
           <div className="flex gap-4">
-            <Link to="/signup">
+            <Link to="/register">
               <Button className="bg-primary text-white hover:bg-primary/90 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20">
                 Sign Up
               </Button>
@@ -59,7 +59,7 @@ const Navbar = () => {
             >
               Insights
             </a>
-            <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/register" onClick={() => setIsMenuOpen(false)}>
               <Button className="bg-primary text-white hover:bg-primary/90 w-full">
                 Sign Up
               </Button>
