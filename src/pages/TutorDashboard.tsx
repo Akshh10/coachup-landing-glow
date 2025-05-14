@@ -90,12 +90,15 @@ const TutorDashboard: React.FC = () => {
   
   // Parse availability from tutor profile or use default
   const timeSlots = tutorProfile?.availability 
-    ? Object.entries(tutorProfile.availability).map(([day, slots], index) => ({
-        id: index.toString(),
-        day,
-        startTime: slots.start,
-        endTime: slots.end,
-      }))
+    ? Object.entries(tutorProfile.availability).map(([day, slots], index) => {
+        const typedSlots = slots as { start: string; end: string };
+        return {
+          id: index.toString(),
+          day,
+          startTime: typedSlots.start,
+          endTime: typedSlots.end,
+        };
+      })
     : [
         { id: "1", day: "Monday", startTime: "9:00 AM", endTime: "12:00 PM" },
         { id: "2", day: "Monday", startTime: "2:00 PM", endTime: "6:00 PM" },
