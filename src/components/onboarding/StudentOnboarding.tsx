@@ -13,18 +13,88 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// Define the multi-select component
+const MultiSelect = ({ options, value, onChange, placeholder }) => {
+  const [inputValue, setInputValue] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const handleSelect = (option) => {
+    if (!value.includes(option)) {
+      onChange([...value, option]);
+    }
+    setInputValue('');
+  };
+  
+  const handleRemove = (option) => {
+    onChange(value.filter(item => item !== option));
+  };
+  
+  const filteredOptions = options.filter(option => 
+    !value.includes(option) && 
+    option.toLowerCase().includes(inputValue.toLowerCase())
+  );
+  
+  return (
+    <div className="relative">
+      <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-background">
+        {value.map(item => (
+          <div key={item} className="flex items-center bg-[#E6EFFF] text-[#3E64FF] rounded-full px-3 py-1 text-sm">
+            {item}
+            <button
+              type="button"
+              onClick={() => handleRemove(item)}
+              className="ml-2 text-[#3E64FF] hover:text-red-500"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
+          placeholder={value.length === 0 ? placeholder : ""}
+          className="flex-grow border-none outline-none bg-transparent p-1 text-sm"
+        />
+      </div>
+      
+      {isOpen && filteredOptions.length > 0 && (
+        <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+          {filteredOptions.map(option => (
+            <div
+              key={option}
+              onClick={() => handleSelect(option)}
+              className="p-2 hover:bg-[#F0F4FF] cursor-pointer text-sm"
+            >
+              {option}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Define the multi-step form schema
 const learningInterestsSchema = z.object({
-  skills: z.string().min(1, "Please enter at least one skill you want to learn"),
-  level: z.string().min(1, "Please select your desired learning level"),
-  goal: z.string().min(5, "Please briefly describe your learning goal"),
+  learningType: z.string().min(1, "Please select your learning type"),
+  skills: z.array(z.string()).optional(),
+  learningGoal: z.string().optional(),
+  experienceLevel: z.string().optional(),
+  grade: z.string().optional(),
+  subjects: z.array(z.string()).optional(),
+  curriculum: z.array(z.string()).optional(),
   preferredMode: z.string().min(1, "Please select your preferred learning mode"),
 });
 
 const scheduleSchema = z.object({
   availability: z.string().min(1, "Please select your availability"),
-  coachStyle: z.string().min(1, "Please select your preferred coaching style"),
   useCase: z.string().optional(),
 });
 
@@ -32,31 +102,89 @@ const photoSchema = z.object({
   photoUrl: z.string().optional(),
 });
 
+// Sample data for dropdowns
+const skillOptions = [
+  "Python", "JavaScript", "React", "Data Science", "Machine Learning", "Web Development",
+  "Public Speaking", "Digital Marketing", "SEO", "Content Creation", "Graphic Design", 
+  "UI/UX Design", "Figma", "Adobe Photoshop", "Adobe Illustrator", "Adobe Premiere Pro",
+  "Microsoft Excel", "Microsoft PowerPoint", "Microsoft Word", "Mathematics", "Physics",
+  "Chemistry", "Biology", "English Literature", "Essay Writing", "Business Management",
+  "Accounting", "Finance", "Economics", "Statistics", "Guitar", "Piano", "Singing",
+  "Photography", "Video Editing", "3D Modeling", "Game Development", "iOS Development",
+  "Android Development", "Flutter", "React Native"
+];
+
+const gradeOptions = [
+  "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"
+];
+
+const subjectOptions = [
+  "Mathematics", "Physics", "Chemistry", "Biology", "Computer Science", 
+  "History", "Geography", "Social Studies", "English", "Literature", 
+  "Economics", "Business Studies", "Accounting", "Political Science"
+];
+
+const curriculumOptions = [
+  "CBSE", "ICSE", "State Board", "IB", "Cambridge/IGCSE", "AP", "Other"
+];
+
 const StudentOnboarding = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    skills: "",
-    level: "",
-    goal: "",
+    learningType: "",
+    skills: [],
+    learningGoal: "",
+    experienceLevel: "",
+    grade: "",
+    subjects: [],
+    curriculum: [],
     preferredMode: "",
     availability: "",
-    coachStyle: "",
     useCase: "",
     photoUrl: "",
   });
   const [uploadedPhoto, setUploadedPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [typingText, setTypingText] = useState({ current: '', target: '', index: 0 });
+
+  // Initialize typing animation for sample text
+  React.useEffect(() => {
+    const sampleGoal = "I want to land a junior developer role by learning React and modern web development practices.";
+    
+    setTypingText({ current: '', target: sampleGoal, index: 0 });
+    
+    const typingInterval = setInterval(() => {
+      setTypingText(prev => {
+        if (prev.index >= prev.target.length) {
+          clearInterval(typingInterval);
+          return prev;
+        }
+        
+        return {
+          ...prev,
+          current: prev.target.substring(0, prev.index + 1),
+          index: prev.index + 1
+        };
+      });
+    }, 50);
+    
+    return () => clearInterval(typingInterval);
+  }, []);
 
   // Form setup for each step
   const learningInterestsForm = useForm<z.infer<typeof learningInterestsSchema>>({
     resolver: zodResolver(learningInterestsSchema),
     defaultValues: {
+      learningType: formData.learningType,
       skills: formData.skills,
-      level: formData.level,
-      goal: formData.goal,
+      learningGoal: formData.learningGoal,
+      experienceLevel: formData.experienceLevel,
+      grade: formData.grade,
+      subjects: formData.subjects,
+      curriculum: formData.curriculum,
       preferredMode: formData.preferredMode,
     },
   });
@@ -65,7 +193,6 @@ const StudentOnboarding = () => {
     resolver: zodResolver(scheduleSchema),
     defaultValues: {
       availability: formData.availability,
-      coachStyle: formData.coachStyle,
       useCase: formData.useCase,
     },
   });
@@ -127,17 +254,22 @@ const StudentOnboarding = () => {
         photoUrl = data.publicUrl;
       }
       
+      let preferredSubjects = [];
+      
+      // Handle different data based on learning type
+      if (formData.learningType === 'skills') {
+        preferredSubjects = formData.skills;
+      } else if (formData.learningType === 'academics') {
+        preferredSubjects = formData.subjects;
+      }
+      
       // Save all student profile data
       const { error } = await supabase
         .from('student_profiles')
         .update({
-          learning_interests: formData.skills.split(',').map(item => item.trim()),
-          level: formData.level,
-          learning_goal: formData.goal,
-          preferred_mode: formData.preferredMode,
-          availability: formData.availability.split(',').map(item => item.trim()),
-          preferred_coach_style: formData.coachStyle.split(',').map(item => item.trim()),
-          use_case: formData.useCase || null,
+          preferred_subjects: preferredSubjects,
+          grade_level: formData.grade || null,
+          learning_goals: formData.learningGoal || null,
           photo_url: photoUrl || null,
           onboarding_completed: true
         })
@@ -145,6 +277,20 @@ const StudentOnboarding = () => {
 
       if (error) {
         throw error;
+      }
+
+      // Update the main profile photo as well
+      if (photoUrl) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            profile_picture_url: photoUrl
+          })
+          .eq('id', user?.id);
+          
+        if (profileError) {
+          console.error('Error updating profile picture:', profileError);
+        }
       }
 
       toast({
@@ -234,54 +380,147 @@ const StudentOnboarding = () => {
                     <form onSubmit={learningInterestsForm.handleSubmit(handleLearningInterestsSubmit)} className="space-y-4">
                       <FormField
                         control={learningInterestsForm.control}
-                        name="skills"
+                        name="learningType"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>What skills do you want to learn?</FormLabel>
+                            <FormLabel>What would you like to learn?</FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="Python, SEO, Public Speaking, etc. (comma separated)" 
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={learningInterestsForm.control}
-                        name="level"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Preferred Level</FormLabel>
-                            <FormControl>
-                              <select
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                {...field}
+                              <Tabs
+                                defaultValue={field.value || "skills"}
+                                className="w-full"
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                }}
                               >
-                                <option value="">Select your level</option>
-                                <option value="beginner">Beginner</option>
-                                <option value="intermediate">Intermediate</option>
-                                <option value="advanced">Advanced</option>
-                              </select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                                <TabsList className="grid w-full grid-cols-2">
+                                  <TabsTrigger value="skills">Skills & Career</TabsTrigger>
+                                  <TabsTrigger value="academics">Academic Subjects</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="skills" className="mt-4 space-y-4">
+                                  <FormField
+                                    control={learningInterestsForm.control}
+                                    name="skills"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>What skills do you want to learn?</FormLabel>
+                                        <FormControl>
+                                          <MultiSelect
+                                            options={skillOptions}
+                                            value={field.value || []}
+                                            onChange={field.onChange}
+                                            placeholder="Select skills you want to learn"
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
 
-                      <FormField
-                        control={learningInterestsForm.control}
-                        name="goal"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>What's your main learning goal?</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="E.g., Career advancement, mastering a new skill, etc." 
-                                {...field} 
-                              />
+                                  <FormField
+                                    control={learningInterestsForm.control}
+                                    name="experienceLevel"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Experience Level</FormLabel>
+                                        <FormControl>
+                                          <select
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            {...field}
+                                          >
+                                            <option value="">Select your experience level</option>
+                                            <option value="beginner">Beginner</option>
+                                            <option value="intermediate">Intermediate</option>
+                                            <option value="advanced">Advanced</option>
+                                          </select>
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+
+                                  <FormField
+                                    control={learningInterestsForm.control}
+                                    name="learningGoal"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>What's your main learning goal?</FormLabel>
+                                        <div className="mb-2 text-sm text-gray-500 italic">
+                                          Example: <span className="text-gray-700">{typingText.current}<span className="animate-pulse">|</span></span>
+                                        </div>
+                                        <FormControl>
+                                          <Input 
+                                            placeholder="E.g., Career advancement, mastering a new skill, etc." 
+                                            {...field} 
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </TabsContent>
+                                
+                                <TabsContent value="academics" className="mt-4 space-y-4">
+                                  <FormField
+                                    control={learningInterestsForm.control}
+                                    name="grade"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Which grade are you in?</FormLabel>
+                                        <FormControl>
+                                          <select
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            {...field}
+                                          >
+                                            <option value="">Select your grade</option>
+                                            {gradeOptions.map(grade => (
+                                              <option key={grade} value={grade}>{grade}</option>
+                                            ))}
+                                          </select>
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+
+                                  <FormField
+                                    control={learningInterestsForm.control}
+                                    name="subjects"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Which subjects do you need help with?</FormLabel>
+                                        <FormControl>
+                                          <MultiSelect
+                                            options={subjectOptions}
+                                            value={field.value || []}
+                                            onChange={field.onChange}
+                                            placeholder="Select subjects"
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+
+                                  <FormField
+                                    control={learningInterestsForm.control}
+                                    name="curriculum"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Which curriculum do you follow?</FormLabel>
+                                        <FormControl>
+                                          <MultiSelect
+                                            options={curriculumOptions}
+                                            value={field.value || []}
+                                            onChange={field.onChange}
+                                            placeholder="Select curriculum"
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </TabsContent>
+                              </Tabs>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -302,8 +541,6 @@ const StudentOnboarding = () => {
                                 <option value="">Select learning mode</option>
                                 <option value="online">Online</option>
                                 <option value="one-on-one">1-on-1</option>
-                                <option value="group">Group</option>
-                                <option value="hybrid">Hybrid</option>
                               </select>
                             </FormControl>
                             <FormMessage />
@@ -313,7 +550,7 @@ const StudentOnboarding = () => {
 
                       <Button 
                         type="submit" 
-                        className="w-full bg-[#3E64FF] hover:bg-[#2D4FD6] text-white mt-4"
+                        className="w-full bg-[#3E64FF] hover:bg-[#2D4FD6] text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)]"
                       >
                         Continue
                       </Button>
@@ -345,24 +582,7 @@ const StudentOnboarding = () => {
                             <FormLabel>When are you available?</FormLabel>
                             <FormControl>
                               <Input 
-                                placeholder="Weekday evenings, weekend mornings, etc. (comma separated)" 
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={scheduleForm.control}
-                        name="coachStyle"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Preferred Coach Style</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="Friendly, Structured, Fast-paced, etc. (comma separated)" 
+                                placeholder="Weekday evenings, weekend mornings, etc." 
                                 {...field} 
                               />
                             </FormControl>
@@ -407,7 +627,7 @@ const StudentOnboarding = () => {
                         </Button>
                         <Button 
                           type="submit" 
-                          className="bg-[#3E64FF] hover:bg-[#2D4FD6] text-white"
+                          className="bg-[#3E64FF] hover:bg-[#2D4FD6] text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)]"
                         >
                           Continue
                         </Button>
@@ -488,7 +708,7 @@ const StudentOnboarding = () => {
                     </Button>
                     <Button 
                       type="button" 
-                      className="bg-[#3E64FF] hover:bg-[#2D4FD6] text-white"
+                      className="bg-[#3E64FF] hover:bg-[#2D4FD6] text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)]"
                       onClick={handlePhotoSubmit}
                       disabled={isSubmitting}
                     >

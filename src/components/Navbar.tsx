@@ -21,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Settings, BookOpen, Calendar } from "lucide-react";
+import { LogOut, User, Calendar, MessageSquare, Book } from "lucide-react";
 
 const Navbar = () => {
   const { user, role, signOut } = useAuth();
@@ -30,28 +30,65 @@ const Navbar = () => {
   // Check if we're on the homepage
   const isHomepage = location.pathname === '/';
   
+  // Skills dropdown data
+  const skillCategories = [
+    {
+      title: "Programming",
+      items: ["Python", "JavaScript", "React", "Data Science"]
+    },
+    {
+      title: "Business",
+      items: ["Marketing", "SEO", "Public Speaking", "Leadership"]
+    },
+    {
+      title: "Design",
+      items: ["UI/UX", "Figma", "Adobe Suite", "Graphic Design"]
+    },
+    {
+      title: "Academics",
+      items: ["Mathematics", "Physics", "Chemistry", "Biology"]
+    }
+  ];
+  
   return (
     <header className={cn(
       "w-full py-4 px-6 md:px-10 flex items-center justify-between",
       isHomepage ? "absolute top-0 left-0 z-50 bg-transparent" : "bg-white border-b"
     )}>
       <div className="flex items-center">
-        <Link to="/" className={cn(
-          "text-2xl font-bold",
-          isHomepage ? "text-[#3E64FF]" : "text-[#3E64FF]"
-        )}>
+        <Link to="/" className="text-2xl font-bold text-[#3E64FF]">
           UpSkill
         </Link>
         
         <NavigationMenu className="hidden md:flex ml-10">
           <NavigationMenuList>
             <NavigationMenuItem>
-              <Link to="/skills" className={cn(
-                "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                isHomepage ? "text-[#3E64FF]" : "text-[#3E64FF]"
+              <NavigationMenuTrigger className={cn(
+                "text-[#3E64FF] bg-transparent hover:bg-accent/50"
               )}>
                 Skills
-              </Link>
+              </NavigationMenuTrigger>
+              <NavigationMenuContent className="bg-white p-4 rounded-md shadow-lg w-[500px]">
+                <div className="grid grid-cols-2 gap-4">
+                  {skillCategories.map((category) => (
+                    <div key={category.title}>
+                      <h3 className="font-medium text-[#3E64FF] mb-2">{category.title}</h3>
+                      <ul className="space-y-1">
+                        {category.items.map((item) => (
+                          <li key={item}>
+                            <Link 
+                              to={`/skills?category=${category.title.toLowerCase()}&skill=${item.toLowerCase()}`}
+                              className="text-sm text-gray-600 hover:text-[#3E64FF] hover:underline"
+                            >
+                              {item}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </NavigationMenuContent>
             </NavigationMenuItem>
             
             <NavigationMenuItem>
@@ -116,7 +153,7 @@ const Navbar = () => {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to={role === 'tutor' ? '/tutor-dashboard' : '/student-dashboard'} className="cursor-pointer flex w-full items-center">
-                    <Settings className="mr-2 h-4 w-4" />
+                    <Book className="mr-2 h-4 w-4" />
                     <span>Dashboard</span>
                   </Link>
                 </DropdownMenuItem>
@@ -128,14 +165,12 @@ const Navbar = () => {
                     </Link>
                   </DropdownMenuItem>
                 )}
-                {role === 'tutor' && (
-                  <DropdownMenuItem asChild>
-                    <Link to="/sessions" className="cursor-pointer flex w-full items-center">
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      <span>My Sessions</span>
-                    </Link>
-                  </DropdownMenuItem>
-                )}
+                <DropdownMenuItem asChild>
+                  <Link to="/messages" className="cursor-pointer flex w-full items-center">
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    <span>Messages</span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut} className="cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
@@ -148,9 +183,7 @@ const Navbar = () => {
           <>
             <Button 
               variant="ghost" 
-              className={cn(
-                "text-[#3E64FF] hover:bg-[#3E64FF]/10"
-              )}
+              className="text-[#3E64FF] hover:bg-[#3E64FF]/10"
               asChild
             >
               <Link to="/login">Log in</Link>
