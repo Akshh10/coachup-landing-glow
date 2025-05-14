@@ -11,7 +11,7 @@ export const useAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
 
-  // Fetch user role from profiles table
+  // Fetch user role and profile from profiles table
   const fetchUserProfile = useCallback(async (userId: string) => {
     try {
       console.log(`Fetching profile for user ${userId}`);

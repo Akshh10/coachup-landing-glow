@@ -2,7 +2,7 @@
 import React from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import TutorDashboard from "./pages/TutorDashboard";
@@ -57,6 +57,7 @@ const ProtectedRoute = ({
   
   // Check if user has required role
   if (requiredRole && role !== requiredRole) {
+    console.log(`User role (${role}) doesn't match required role (${requiredRole})`);
     return <Navigate to={role === 'tutor' ? '/tutor-dashboard' : '/student-dashboard'} replace />;
   }
   
@@ -65,6 +66,9 @@ const ProtectedRoute = ({
 
 const RedirectToDashboard = () => {
   const { user, role, isLoading } = useAuth();
+  const location = useLocation();
+  console.log("RedirectToDashboard: Current location:", location.pathname);
+  console.log("RedirectToDashboard: User status:", { user: !!user, role, isLoading });
 
   if (isLoading) {
     return (
@@ -82,14 +86,28 @@ const RedirectToDashboard = () => {
   }
 
   if (user && role) {
-    return <Navigate to={role === 'tutor' ? '/tutor-dashboard' : '/student-dashboard'} replace />;
+    const dashboardPath = role === 'tutor' ? '/tutor-dashboard' : '/student-dashboard';
+    console.log(`RedirectToDashboard: Redirecting to ${dashboardPath}`);
+    return <Navigate to={dashboardPath} replace />;
   }
   
+  if (user && !role) {
+    console.log("RedirectToDashboard: User logged in but no role, redirecting to auth callback");
+    return <Navigate to="/auth/callback" replace />;
+  }
+  
+  if (location.pathname === '/') {
+    console.log("RedirectToDashboard: At root path and no user, showing Index page");
+    return <Index />;
+  }
+  
+  console.log("RedirectToDashboard: Fallback case, showing Index page");
   return <Index />;
 };
 
 const App = () => {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  console.log("App: Auth state", { user: !!user, role });
   
   return (
     <QueryClientProvider client={queryClient}>
