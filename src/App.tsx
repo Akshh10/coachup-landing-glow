@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -12,6 +13,9 @@ import TutorProfile from "./pages/TutorProfile";
 import BookingPage from "./pages/BookingPage";
 import SignUp from "./pages/SignUp";
 import { useAuth } from "@/hooks/useAuth";
+import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
+import AuthCallback from "./pages/Auth/AuthCallback";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -23,9 +27,45 @@ const queryClient = new QueryClient({
   }
 });
 
-const App = () => {
-  const { user, role } = useAuth(); // Fetch user and role from custom hook
+const ProtectedRoute = ({ 
+  children, 
+  requiredRole 
+}: { 
+  children: React.ReactNode; 
+  requiredRole?: string 
+}) => {
+  const { user, role, isLoading } = useAuth();
+  
+  // Show loading indicator while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Loading...</h2>
+          <div className="mt-4 animate-pulse flex justify-center">
+            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1"></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1 animate-pulse delay-100"></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1 animate-pulse delay-200"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Check if user is authenticated
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  // Check if user has required role
+  if (requiredRole && role !== requiredRole) {
+    return <Navigate to={role === 'tutor' ? '/tutor-dashboard' : '/student-dashboard'} replace />;
+  }
+  
+  return <>{children}</>;
+};
 
+const App = () => {
   return (
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
@@ -36,46 +76,41 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/signup" element={<SignUp />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
 
               {/* Protected Routes */}
               <Route
                 path="/tutor-dashboard"
                 element={
-                  user && role === "tutor" ? (
+                  <ProtectedRoute requiredRole="tutor">
                     <TutorDashboard />
-                  ) : (
-                    <Navigate to="/signup" />
-                  )
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/student-dashboard"
                 element={
-                  user && role === "student" ? (
+                  <ProtectedRoute requiredRole="student">
                     <StudentDashboard />
-                  ) : (
-                    <Navigate to="/signup" />
-                  )
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/tutor/:id"
                 element={
-                  user && role === "tutor" ? (
+                  <ProtectedRoute>
                     <TutorProfile />
-                  ) : (
-                    <Navigate to="/signup" />
-                  )
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/booking/:tutorId"
                 element={
-                  user ? (
+                  <ProtectedRoute>
                     <BookingPage />
-                  ) : (
-                    <Navigate to="/signup" />
-                  )
+                  </ProtectedRoute>
                 }
               />
 
