@@ -1,74 +1,244 @@
-
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
+import { 
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LogOut, User, Settings, BookOpen, Calendar } from "lucide-react";
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, role, signOut } = useAuth();
+  const location = useLocation();
   
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
+  // Check if we're on the homepage
+  const isHomepage = location.pathname === '/';
+  
   return (
-    <nav className="bg-white py-4 sticky top-0 z-50 shadow-sm">
-      <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
-        <div className="flex items-center">
-          <Link to="/" className="text-2xl font-bold text-primary">UpSkill</Link>
-        </div>
+    <header className={cn(
+      "w-full py-4 px-6 md:px-10 flex items-center justify-between",
+      isHomepage ? "absolute top-0 left-0 z-50 bg-transparent" : "bg-white border-b"
+    )}>
+      <div className="flex items-center">
+        <Link to="/" className={cn(
+          "text-2xl font-bold",
+          isHomepage ? "text-white" : "text-[#3E64FF]"
+        )}>
+          UpSkill
+        </Link>
         
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-10">
-          <div className="flex gap-8">
-            <a href="#skills" className="text-gray-600 hover:text-primary transition-colors">Skills</a>
-            <a href="#blogs" className="text-gray-600 hover:text-primary transition-colors">Insights</a>
-          </div>
-          <div className="flex gap-4">
-            <Link to="/register">
-              <Button className="bg-primary text-white hover:bg-primary/90 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20">
-                Sign Up
-              </Button>
-            </Link>
-          </div>
-        </div>
-        
-        {/* Mobile Menu Button */}
-        <div className="md:hidden">
-          <Button variant="ghost" onClick={toggleMenu} className="p-2">
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </Button>
-        </div>
+        <NavigationMenu className="hidden md:flex ml-10">
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger className={isHomepage ? "text-white" : ""}>
+                Subjects
+              </NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                  {subjects.map((subject) => (
+                    <ListItem
+                      key={subject.title}
+                      title={subject.title}
+                      href={subject.href}
+                    >
+                      {subject.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+            
+            <NavigationMenuItem>
+              <Link to="/tutors" legacyBehavior passHref>
+                <NavigationMenuLink className={cn(
+                  "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
+                  isHomepage ? "text-white" : ""
+                )}>
+                  Find Tutors
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+            
+            <NavigationMenuItem>
+              <Link to="/about" legacyBehavior passHref>
+                <NavigationMenuLink className={cn(
+                  "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
+                  isHomepage ? "text-white" : ""
+                )}>
+                  About Us
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
       </div>
       
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white py-4 px-6 shadow-md absolute w-full">
-          <div className="flex flex-col space-y-4">
-            <a 
-              href="#skills" 
-              className="text-gray-600 hover:text-primary transition-colors"
-              onClick={() => setIsMenuOpen(false)}
+      <div className="flex items-center gap-4">
+        {user ? (
+          <>
+            <Button 
+              variant="ghost" 
+              className={cn(
+                "hidden md:flex",
+                isHomepage ? "text-white hover:bg-white/20" : ""
+              )}
+              asChild
             >
-              Skills
-            </a>
-            <a 
-              href="#blogs" 
-              className="text-gray-600 hover:text-primary transition-colors"
-              onClick={() => setIsMenuOpen(false)}
+              <Link to={role === 'tutor' ? '/tutor-dashboard' : '/student-dashboard'}>
+                Dashboard
+              </Link>
+            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  className="rounded-full h-10 w-10 p-0 overflow-hidden"
+                >
+                  <Avatar>
+                    <AvatarImage src="/placeholder-avatar.jpg" />
+                    <AvatarFallback className="bg-[#3E64FF] text-white">
+                      {user.email?.charAt(0).toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="cursor-pointer flex w-full items-center">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to={role === 'tutor' ? '/tutor-dashboard' : '/student-dashboard'} className="cursor-pointer flex w-full items-center">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                </DropdownMenuItem>
+                {role === 'student' && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/bookings" className="cursor-pointer flex w-full items-center">
+                      <Calendar className="mr-2 h-4 w-4" />
+                      <span>My Bookings</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                {role === 'tutor' && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/sessions" className="cursor-pointer flex w-full items-center">
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      <span>My Sessions</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={signOut} className="cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        ) : (
+          <>
+            <Button 
+              variant="ghost" 
+              className={cn(
+                isHomepage ? "text-white hover:bg-white/20" : ""
+              )}
+              asChild
             >
-              Insights
-            </a>
-            <Link to="/register" onClick={() => setIsMenuOpen(false)}>
-              <Button className="bg-primary text-white hover:bg-primary/90 w-full">
-                Sign Up
-              </Button>
-            </Link>
-          </div>
-        </div>
-      )}
-    </nav>
+              <Link to="/login">Log in</Link>
+            </Button>
+            <Button 
+              variant={isHomepage ? "secondary" : "default"} 
+              className={isHomepage ? "bg-white text-[#3E64FF] hover:bg-gray-100" : ""}
+              asChild
+            >
+              <Link to="/register">Sign up</Link>
+            </Button>
+          </>
+        )}
+      </div>
+    </header>
   );
 };
+
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  );
+});
+ListItem.displayName = "ListItem";
+
+const subjects = [
+  {
+    title: "Mathematics",
+    href: "/subjects/mathematics",
+    description: "Algebra, Calculus, Statistics, Geometry and more",
+  },
+  {
+    title: "Science",
+    href: "/subjects/science",
+    description: "Physics, Chemistry, Biology, Computer Science",
+  },
+  {
+    title: "Languages",
+    href: "/subjects/languages",
+    description: "English, Spanish, French, German, Mandarin",
+  },
+  {
+    title: "Humanities",
+    href: "/subjects/humanities",
+    description: "History, Geography, Philosophy, Literature",
+  },
+  {
+    title: "Test Preparation",
+    href: "/subjects/test-prep",
+    description: "SAT, ACT, GRE, GMAT, LSAT, MCAT",
+  },
+  {
+    title: "Professional Skills",
+    href: "/subjects/professional",
+    description: "Business, Marketing, Programming, Design",
+  },
+];
 
 export default Navbar;

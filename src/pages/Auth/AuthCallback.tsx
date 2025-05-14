@@ -1,42 +1,52 @@
 
 import { useEffect, useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
 import RoleSelectDialog from './RoleSelectDialog';
 import { toast } from '@/components/ui/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 const AuthCallback = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [role, setRole] = useState<string | null>(null);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const location = useLocation();
-  const navigate = useNavigate();
+  const { role } = useAuth();
   
+  console.log('AuthCallback rendered, current role:', role);
+
+  // Detect role from URL or user profile
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
         setIsLoading(true);
         
+        console.log('Handling auth callback...');
+        
         // Extract role from URL query parameters
         const queryParams = new URLSearchParams(location.search);
         const roleParam = queryParams.get('role');
+        console.log('Role from query params:', roleParam);
         
-        // Process the session
+        // Get current user
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
+          console.error('Error getting session:', error);
           throw error;
         }
         
         if (!data.session?.user) {
-          // No user in the session, redirect to login
+          console.log('No user found in session');
+          setShouldRedirect(true);
           setRedirectPath('/login');
           return;
         }
         
         const user = data.session.user;
+        console.log('User found in session:', user.id);
         setUserId(user.id);
         
         // Check if user already has a role in profile
@@ -46,44 +56,39 @@ const AuthCallback = () => {
           .eq('id', user.id)
           .single();
           
-        if (profile?.role) {
-          // User already has a role, set it and prepare to redirect
-          const userRole = profile.role.toLowerCase();
-          setRole(userRole);
-          const path = userRole === 'tutor' ? '/tutor-dashboard' : '/student-dashboard';
-          setRedirectPath(path);
+        console.log('Profile data:', profile);
           
-          // Log for debugging
-          console.log(`User has role ${userRole}, redirecting to ${path}`);
+        if (profile?.role) {
+          // User already has a role, redirect to appropriate dashboard
+          const userRole = profile.role.toLowerCase();
+          console.log('User has role:', userRole);
+          
+          setShouldRedirect(true);
+          setRedirectPath(userRole === 'tutor' ? '/tutor-dashboard' : '/student-dashboard');
         } else if (roleParam) {
           // If role was passed in URL params, update profile
-          const userRole = roleParam.toLowerCase();
+          console.log('Setting role from URL param:', roleParam);
           
           await supabase
             .from('profiles')
-            .update({ role: userRole })
+            .update({ role: roleParam })
             .eq('id', user.id);
           
-          setRole(userRole);
-          const path = userRole === 'tutor' ? '/tutor-dashboard' : '/student-dashboard';
-          setRedirectPath(path);
-          
-          // Log for debugging
-          console.log(`Set user role to ${userRole}, redirecting to ${path}`);
+          setShouldRedirect(true);
+          setRedirectPath(roleParam.toLowerCase() === 'tutor' ? '/tutor-dashboard' : '/student-dashboard');
         } else {
           // No role found, show role selection dialog
-          setIsRoleDialogOpen(true);
           console.log('No role found, showing dialog');
+          setIsRoleDialogOpen(true);
         }
       } catch (error) {
         console.error('Error in auth callback:', error);
         toast({
           title: "Authentication error",
-          description: "There was a problem completing your authentication",
+          description: "There was a problem completing your signup",
           variant: "destructive",
         });
-        
-        // Redirect to login on error
+        setShouldRedirect(true);
         setRedirectPath('/login');
       } finally {
         setIsLoading(false);
@@ -91,21 +96,20 @@ const AuthCallback = () => {
     };
     
     handleAuthCallback();
-  }, [location.search, navigate]);
+  }, [location.search]);
   
-  // Handle role selection dialog closure
-  const handleRoleDialogClose = () => {
+  // Handle dialog close
+  const handleDialogClose = () => {
     setIsRoleDialogOpen(false);
-    
-    // After role selection, we should have a role set
+    // Check auth context for updated role
     if (role) {
-      const path = role === 'tutor' ? '/tutor-dashboard' : '/student-dashboard';
-      setRedirectPath(path);
+      setShouldRedirect(true);
+      setRedirectPath(role === 'tutor' ? '/tutor-dashboard' : '/student-dashboard');
     }
   };
   
-  // If we have a redirect path, navigate there
-  if (redirectPath) {
+  // Perform redirect if needed
+  if (shouldRedirect && redirectPath) {
     console.log(`Redirecting to ${redirectPath}`);
     return <Navigate to={redirectPath} replace />;
   }
@@ -117,15 +121,15 @@ const AuthCallback = () => {
         <RoleSelectDialog
           isOpen={isRoleDialogOpen}
           userId={userId}
-          onClose={handleRoleDialogClose}
+          onClose={handleDialogClose}
         />
       )}
       
-      {/* Fallback content while loading or dialog is showing */}
+      {/* Show loading content while processing */}
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-2">
-            {isLoading ? "Completing your authentication..." : "Almost there!"}
+            {isLoading ? "Completing your registration..." : "Almost there!"}
           </h2>
           {isLoading ? (
             <div className="mt-4 animate-pulse flex justify-center">
@@ -134,9 +138,7 @@ const AuthCallback = () => {
               <div className="w-3 h-3 bg-blue-500 rounded-full mx-1 animate-pulse delay-200"></div>
             </div>
           ) : (
-            !redirectPath && (
-              <p className="text-gray-500">Please select your role to continue.</p>
-            )
+            <p className="text-gray-500">Please select your role to continue.</p>
           )}
         </div>
       </div>

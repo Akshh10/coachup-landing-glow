@@ -23,6 +23,8 @@ const RoleSelectDialog: React.FC<RoleSelectDialogProps> = ({ isOpen, userId, onC
     try {
       setIsSubmitting(true);
       
+      console.log(`Submitting role: ${selectedRole} for user: ${userId}`);
+      
       // Update user profile with selected role
       const { error } = await supabase
         .from('profiles')
@@ -30,8 +32,11 @@ const RoleSelectDialog: React.FC<RoleSelectDialogProps> = ({ isOpen, userId, onC
         .eq('id', userId);
         
       if (error) {
+        console.error('Error setting role:', error);
         throw error;
       }
+      
+      console.log('Role updated successfully');
       
       toast({
         title: "Role selected",
@@ -43,7 +48,7 @@ const RoleSelectDialog: React.FC<RoleSelectDialogProps> = ({ isOpen, userId, onC
       
       // Then redirect based on role
       const redirectPath = selectedRole === 'tutor' ? '/tutor-dashboard' : '/student-dashboard';
-      console.log(`Role set to ${selectedRole}, redirecting to ${redirectPath}`);
+      console.log(`Redirecting to ${redirectPath}`);
       navigate(redirectPath, { replace: true });
       
     } catch (error) {
