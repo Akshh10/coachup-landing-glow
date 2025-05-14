@@ -11,7 +11,6 @@ import TutorDashboard from "./pages/TutorDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import TutorProfile from "./pages/TutorProfile";
 import BookingPage from "./pages/BookingPage";
-import SignUp from "./pages/SignUp";
 import { useAuth } from "@/hooks/useAuth";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
@@ -75,7 +74,6 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
