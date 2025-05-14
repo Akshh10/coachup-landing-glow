@@ -10,6 +10,7 @@ interface Session {
   id: string;
   tutorName: string;
   tutorPhoto?: string;
+  tutorId: string;
   subject: string;
   date: string;
   time: string;
@@ -18,9 +19,13 @@ interface Session {
 
 interface UpcomingSessionsSectionProps {
   sessions: Session[];
+  onTutorClick?: (tutorId: string) => void;
 }
 
-const UpcomingSessionsSection: React.FC<UpcomingSessionsSectionProps> = ({ sessions }) => {
+const UpcomingSessionsSection: React.FC<UpcomingSessionsSectionProps> = ({ 
+  sessions, 
+  onTutorClick 
+}) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -42,12 +47,20 @@ const UpcomingSessionsSection: React.FC<UpcomingSessionsSectionProps> = ({ sessi
               >
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="flex gap-3">
-                    <Avatar>
+                    <Avatar 
+                      className="cursor-pointer" 
+                      onClick={() => onTutorClick && onTutorClick(session.tutorId)}
+                    >
                       <AvatarImage src={session.tutorPhoto} />
                       <AvatarFallback>{session.tutorName.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <h4 className="font-medium">{session.tutorName}</h4>
+                      <h4 
+                        className="font-medium cursor-pointer hover:text-primary"
+                        onClick={() => onTutorClick && onTutorClick(session.tutorId)}
+                      >
+                        {session.tutorName}
+                      </h4>
                       <Badge variant="outline">{session.subject}</Badge>
                       <div className="flex items-center gap-2 mt-2">
                         <Calendar className="h-4 w-4 text-gray-500" />

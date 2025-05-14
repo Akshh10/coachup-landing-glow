@@ -18,9 +18,17 @@ interface Tutor {
 
 interface RecommendedTutorsSectionProps {
   tutors: Tutor[];
+  onTutorClick?: (tutorId: string) => void;
+  onBookingClick?: (tutorId: string) => void;
+  onMessageClick?: (tutorId: string, tutorName: string) => void;
 }
 
-const RecommendedTutorsSection: React.FC<RecommendedTutorsSectionProps> = ({ tutors }) => {
+const RecommendedTutorsSection: React.FC<RecommendedTutorsSectionProps> = ({ 
+  tutors,
+  onTutorClick,
+  onBookingClick,
+  onMessageClick
+}) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -35,14 +43,22 @@ const RecommendedTutorsSection: React.FC<RecommendedTutorsSectionProps> = ({ tut
             <Card key={tutor.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 border">
               <div className="p-4">
                 <div className="flex items-center gap-3 mb-3">
-                  <Avatar className="h-12 w-12">
+                  <Avatar 
+                    className="h-12 w-12 cursor-pointer"
+                    onClick={() => onTutorClick && onTutorClick(tutor.id)}
+                  >
                     <AvatarImage src={tutor.photo} />
                     <AvatarFallback>
                       <User className="h-6 w-6 text-gray-400" />
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h4 className="font-medium">{tutor.name}</h4>
+                    <h4 
+                      className="font-medium cursor-pointer hover:text-primary"
+                      onClick={() => onTutorClick && onTutorClick(tutor.id)}
+                    >
+                      {tutor.name}
+                    </h4>
                     <div className="flex items-center text-sm">
                       <div className="flex">
                         {[...Array(5)].map((_, i) => (
@@ -88,10 +104,29 @@ const RecommendedTutorsSection: React.FC<RecommendedTutorsSectionProps> = ({ tut
                 <Button 
                   className="w-full" 
                   variant="outline"
-                  onClick={() => window.location.href = `/tutor/${tutor.id}`}
+                  onClick={() => onTutorClick && onTutorClick(tutor.id)}
                 >
                   View Profile
                 </Button>
+                
+                {onBookingClick && (
+                  <Button 
+                    className="w-full mt-2" 
+                    onClick={() => onBookingClick(tutor.id)}
+                  >
+                    Book Session
+                  </Button>
+                )}
+                
+                {onMessageClick && (
+                  <Button 
+                    className="w-full mt-2" 
+                    variant="ghost"
+                    onClick={() => onMessageClick(tutor.id, tutor.name)}
+                  >
+                    Message
+                  </Button>
+                )}
               </div>
             </Card>
           ))}
