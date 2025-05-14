@@ -63,16 +63,41 @@ const ProtectedRoute = ({
   return <>{children}</>;
 };
 
+const RedirectToDashboard = () => {
+  const { user, role, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Loading...</h2>
+          <div className="mt-4 animate-pulse flex justify-center">
+            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1"></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1 animate-pulse delay-100"></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1 animate-pulse delay-200"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (user && role) {
+    return <Navigate to={role === 'tutor' ? '/tutor-dashboard' : '/student-dashboard'} replace />;
+  }
+  
+  return <Index />;
+};
+
 const App = () => {
   const { user } = useAuth();
-
+  
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <BrowserRouter>
           <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Index />} />
+            {/* Public Routes with automatic redirect for logged in users */}
+            <Route path="/" element={user ? <RedirectToDashboard /> : <Index />} />
             <Route path="/login" element={
               user ? <Navigate to="/auth/callback" replace /> : <Login />
             } />

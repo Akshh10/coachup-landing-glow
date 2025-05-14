@@ -1,12 +1,12 @@
 
 import React from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Navigate } from "react-router-dom";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import { Navigate } from "react-router-dom";
 
 const ProfileEditor = () => {
-  const { user, profile, role, isLoading } = useAuth();
+  const { user, role, isLoading } = useAuth();
   
   if (isLoading) {
     return (
@@ -26,27 +26,24 @@ const ProfileEditor = () => {
   if (!user) {
     return <Navigate to="/login" />;
   }
+
+  // Determine user type - default to student if no role
+  const userType = (role === 'tutor' || role === 'student') ? role : 'student';
   
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <DashboardSidebar userType={role || 'student'} />
+      <DashboardSidebar userType={userType} />
       
       <div className="flex-1 flex flex-col">
         <DashboardHeader 
-          userName={profile?.full_name || 'User'} 
-          userType={role || 'student'} 
-          userImage={profile?.profile_picture_url}
+          userName={user.email || 'User'} 
+          userType={userType} 
         />
         
         <div className="flex-1 p-6 overflow-auto">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-2xl font-bold mb-6">Edit Your Profile</h1>
-            <div className="bg-white p-6 rounded-lg shadow">
-              <p className="text-gray-500">
-                Profile editing functionality will be implemented here.
-              </p>
-              {/* Profile editing form will be added here */}
-            </div>
+            <p>Profile editor content will go here.</p>
           </div>
         </div>
       </div>

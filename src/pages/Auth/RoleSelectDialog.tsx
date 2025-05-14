@@ -3,19 +3,17 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabaseClient';
-import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
 
 interface RoleSelectDialogProps {
   isOpen: boolean;
   userId: string;
-  onClose: () => void;
+  onClose: (selectedRole?: string) => void;
 }
 
 const RoleSelectDialog: React.FC<RoleSelectDialogProps> = ({ isOpen, userId, onClose }) => {
   const [selectedRole, setSelectedRole] = useState<'student' | 'tutor'>('student');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     if (!userId) return;
@@ -43,14 +41,8 @@ const RoleSelectDialog: React.FC<RoleSelectDialogProps> = ({ isOpen, userId, onC
         description: `You've been registered as a ${selectedRole}`,
       });
       
-      // Call onClose first to update parent state
-      onClose();
-      
-      // Then redirect based on role
-      const redirectPath = selectedRole === 'tutor' ? '/tutor-dashboard' : '/student-dashboard';
-      console.log(`Redirecting to ${redirectPath}`);
-      navigate(redirectPath, { replace: true });
-      
+      // Call onClose first to update parent state with the selected role
+      onClose(selectedRole);
     } catch (error) {
       console.error('Error setting user role:', error);
       toast({

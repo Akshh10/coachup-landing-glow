@@ -99,10 +99,16 @@ const AuthCallback = () => {
   }, [location.search]);
   
   // Handle dialog close
-  const handleDialogClose = () => {
+  const handleDialogClose = (selectedRole?: string) => {
     setIsRoleDialogOpen(false);
-    // Check auth context for updated role
-    if (role) {
+    
+    if (selectedRole) {
+      console.log('Role selected in dialog:', selectedRole);
+      setShouldRedirect(true);
+      setRedirectPath(selectedRole === 'tutor' ? '/tutor-dashboard' : '/student-dashboard');
+    } else if (role) {
+      // Check auth context for updated role
+      console.log('Using role from auth context:', role);
       setShouldRedirect(true);
       setRedirectPath(role === 'tutor' ? '/tutor-dashboard' : '/student-dashboard');
     }

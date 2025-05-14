@@ -1,6 +1,8 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from "@/hooks/useAuth";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ProfileSection from "@/components/dashboard/tutor/ProfileSection";
@@ -13,18 +15,56 @@ const TutorDashboard: React.FC = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const tab = searchParams.get("tab") || "dashboard";
-  
-  // Mock data
-  const tutorProfile = {
-    name: "Dr. Sarah Johnson",
-    photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1760&q=80",
-    title: "Physics & Mathematics Tutor",
-    rating: 4.9,
-    subjects: ["Physics", "Calculus", "Algebra", "Quantum Mechanics"],
-    hourlyRate: 45,
-    bio: "PhD in Theoretical Physics with 8+ years of teaching experience. I specialize in making complex concepts easy to understand and helping students build confidence in their abilities."
+  const { user, profile } = useAuth();
+  const [tutorProfile, setTutorProfile] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch tutor's specific profile data
+  useEffect(() => {
+    if (user?.id) {
+      const fetchTutorProfile = async () => {
+        try {
+          setIsLoading(true);
+          
+          // Fetch tutor profile data
+          const { data, error } = await supabase
+            .from('tutor_profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+          if (error) {
+            console.error('Error fetching tutor profile:', error);
+            setError('Failed to load your tutor profile');
+            return;
+          }
+
+          setTutorProfile(data);
+        } catch (err) {
+          console.error('Error in tutor dashboard:', err);
+          setError('An unexpected error occurred');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchTutorProfile();
+    }
+  }, [user?.id]);
+
+  // Combine auth profile with tutor profile
+  const combinedProfile = {
+    name: profile?.full_name || 'New Tutor',
+    photo: profile?.profile_picture_url || "",
+    title: "Tutor",
+    rating: 0, // This should come from a ratings table
+    subjects: tutorProfile?.subjects || [],
+    hourlyRate: 45, // This should come from pricing table or tutor profile
+    bio: tutorProfile?.experience || "No bio available yet."
   };
   
+  // Mock data for now - replace with real data from Supabase in future
   const bookings = [
     {
       id: "1",
@@ -48,12 +88,20 @@ const TutorDashboard: React.FC = () => {
     }
   ];
   
-  const timeSlots = [
-    { id: "1", day: "Monday", startTime: "9:00 AM", endTime: "12:00 PM" },
-    { id: "2", day: "Monday", startTime: "2:00 PM", endTime: "6:00 PM" },
-    { id: "3", day: "Wednesday", startTime: "10:00 AM", endTime: "4:00 PM" },
-    { id: "4", day: "Friday", startTime: "1:00 PM", endTime: "5:00 PM" }
-  ];
+  // Parse availability from tutor profile or use default
+  const timeSlots = tutorProfile?.availability 
+    ? Object.entries(tutorProfile.availability).map(([day, slots], index) => ({
+        id: index.toString(),
+        day,
+        startTime: slots.start,
+        endTime: slots.end,
+      }))
+    : [
+        { id: "1", day: "Monday", startTime: "9:00 AM", endTime: "12:00 PM" },
+        { id: "2", day: "Monday", startTime: "2:00 PM", endTime: "6:00 PM" },
+        { id: "3", day: "Wednesday", startTime: "10:00 AM", endTime: "4:00 PM" },
+        { id: "4", day: "Friday", startTime: "1:00 PM", endTime: "5:00 PM" }
+      ];
   
   const reviews = [
     {
@@ -61,7 +109,7 @@ const TutorDashboard: React.FC = () => {
       studentName: "Alex Johnson",
       studentPhoto: "https://i.pravatar.cc/150?u=alex",
       rating: 5,
-      comment: "Dr. Johnson's approach to explaining quantum mechanics was incredibly helpful. She broke down complex topics into manageable parts and was very patient with my questions.",
+      comment: "Dr. Johnson's approach to explaining quantum mechanics was incredibly helpful.",
       date: "May 20, 2023",
       subject: "Physics"
     },
@@ -70,18 +118,9 @@ const TutorDashboard: React.FC = () => {
       studentName: "Jessica Wang",
       studentPhoto: "https://i.pravatar.cc/150?u=jessica",
       rating: 5,
-      comment: "I was struggling with calculus for months before I found Sarah. Her teaching style is clear and she provides great examples. My grades improved from a C to an A-!",
+      comment: "I was struggling with calculus for months before I found this tutor.",
       date: "April 15, 2023",
       subject: "Calculus"
-    },
-    {
-      id: "3",
-      studentName: "Marcus Chen",
-      studentPhoto: "https://i.pravatar.cc/150?u=marcus",
-      rating: 4,
-      comment: "Very knowledgeable and patient tutor. Helped me prepare for my physics exam with great practice problems and explanations.",
-      date: "March 28, 2023",
-      subject: "Physics"
     }
   ];
   
@@ -104,21 +143,42 @@ const TutorDashboard: React.FC = () => {
         studentName: "Emma Davis",
         amount: 67.50,
         status: "completed" as const
-      },
-      {
-        id: "3",
-        date: "June 2, 2023",
-        studentName: "Alex Johnson",
-        amount: 45,
-        status: "completed" as const
       }
     ]
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Loading your dashboard...</h2>
+          <div className="mt-4 animate-pulse flex justify-center">
+            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1"></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1 animate-pulse delay-100"></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1 animate-pulse delay-200"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2 text-red-600">Error</h2>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
   
   const renderContent = () => {
     switch (tab) {
       case "profile":
-        return <ProfileSection profile={tutorProfile} />;
+        return <ProfileSection profile={combinedProfile} />;
       case "bookings":
         return <BookingsSection bookings={bookings} />;
       case "availability":
@@ -134,7 +194,7 @@ const TutorDashboard: React.FC = () => {
       default:
         return (
           <div className="space-y-6">
-            <ProfileSection profile={tutorProfile} />
+            <ProfileSection profile={combinedProfile} />
             <BookingsSection bookings={bookings} />
           </div>
         );
@@ -147,9 +207,9 @@ const TutorDashboard: React.FC = () => {
       
       <div className="flex-1 flex flex-col">
         <DashboardHeader 
-          userName={tutorProfile.name} 
+          userName={combinedProfile.name} 
           userType="tutor" 
-          userImage={tutorProfile.photo}
+          userImage={combinedProfile.photo}
         />
         
         <div className="flex-1 p-6 overflow-auto">

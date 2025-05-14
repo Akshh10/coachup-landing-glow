@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -64,24 +65,20 @@ const Navbar = () => {
             </NavigationMenuItem>
             
             <NavigationMenuItem>
-              <Link to="/tutors" legacyBehavior passHref>
-                <NavigationMenuLink className={cn(
-                  "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                  isHomepage ? "text-white" : ""
-                )}>
-                  Find Tutors
-                </NavigationMenuLink>
+              <Link to="/tutors" className={cn(
+                "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
+                isHomepage ? "text-white" : ""
+              )}>
+                Find Tutors
               </Link>
             </NavigationMenuItem>
             
             <NavigationMenuItem>
-              <Link to="/about" legacyBehavior passHref>
-                <NavigationMenuLink className={cn(
-                  "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                  isHomepage ? "text-white" : ""
-                )}>
-                  About Us
-                </NavigationMenuLink>
+              <Link to="/about" className={cn(
+                "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
+                isHomepage ? "text-white" : ""
+              )}>
+                About Us
               </Link>
             </NavigationMenuItem>
           </NavigationMenuList>
