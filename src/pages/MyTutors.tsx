@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabaseClient";
@@ -108,11 +109,11 @@ const MyTutors = () => {
 
       if (error) throw error;
 
-      // Map and transform the data - fixing the type conversion issues
-      return data.map((tutor) => ({
+      // Map and transform the data - fixing the type conversion and access issues
+      return (data || []).map((tutor) => ({
         id: tutor.id,
-        profile_picture_url: tutor.profiles?.profile_picture_url,
-        full_name: tutor.profiles?.full_name || "Unknown Tutor",
+        profile_picture_url: tutor.profiles ? tutor.profiles.profile_picture_url : undefined,
+        full_name: tutor.profiles ? tutor.profiles.full_name : "Unknown Tutor",
         subjects: tutor.subjects || [],
         hourly_rate: Math.floor(Math.random() * 40) + 20, // Placeholder
         rating: Number((Math.random() * 3 + 2).toFixed(1)), // Convert to number
