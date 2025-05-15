@@ -4,7 +4,6 @@ import TutorCard from "./TutorCard";
 
 interface Tutor {
   id: string;
-  profile_picture_url?: string;
   full_name?: string;
   subjects?: string[];
   hourly_rate?: number;

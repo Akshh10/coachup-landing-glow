@@ -12,10 +12,10 @@ interface SearchBarProps {
 const SearchBar: React.FC<SearchBarProps> = ({ 
   value, 
   onChange, 
-  placeholder = "Search for subjects or tutors..." 
+  placeholder = "Search for subjects..." 
 }) => {
   return (
-    <div className="mb-8 relative max-w-md">
+    <div className="mb-6 relative max-w-md">
       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
       <Input
         type="text"

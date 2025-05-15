@@ -1,22 +1,17 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 
-interface StudentProfile {
-  id: string;
-  preferred_subjects?: string[];
-}
-
 interface Tutor {
   id: string;
-  profile_picture_url?: string;
-  full_name?: string;
   subjects?: string[];
   hourly_rate?: number;
   rating: number;
   total_reviews?: number;
   location?: string;
   experience?: string;
+  full_name?: string;
 }
 
 export const useTutors = (userId: string | undefined) => {
@@ -40,7 +35,7 @@ export const useTutors = (userId: string | undefined) => {
         .maybeSingle();
 
       if (error) throw error;
-      return data as StudentProfile;
+      return data;
     },
     enabled: !!userId,
   });
@@ -60,53 +55,50 @@ export const useTutors = (userId: string | undefined) => {
   } = useQuery({
     queryKey: ["tutors", studentSubjects, searchTerm],
     queryFn: async () => {
+      if (!userId || studentSubjects.length === 0) return [];
+
+      // Query tutors whose subjects overlap with student's preferred subjects
       let query = supabase
         .from("tutor_profiles")
-        .select(
-          `
+        .select(`
           id,
           subjects,
           is_active,
           experience,
           location,
-          profiles(id, full_name, profile_picture_url)
-        `
-        )
-        .eq("is_active", true);
-
-      if (searchTerm) {
-        // If there's a search term, use it to filter tutors
-        query = query.textSearch("subjects", searchTerm, {
-          type: "plain",
-          config: "english",
-        });
-      } else if (studentSubjects.length > 0) {
-        // Otherwise, use student's preferred subjects
-        const subjectsFilter = studentSubjects.join(" | ");
-        query = query.textSearch("subjects", subjectsFilter, {
-          type: "plain",
-          config: "english",
-        });
-      }
+          profiles(id, full_name)
+        `)
+        .eq("is_active", true)
+        .overlaps("subjects", studentSubjects);
 
       const { data, error } = await query;
 
       if (error) throw error;
 
       // Map and transform the data
-      return (data || []).map((tutor: any) => ({
+      const mappedTutors = (data || []).map((tutor) => ({
         id: tutor.id,
-        profile_picture_url: tutor.profiles?.profile_picture_url || undefined,
         full_name: tutor.profiles?.full_name || "Unknown Tutor",
         subjects: tutor.subjects || [],
         hourly_rate: Math.floor(Math.random() * 40) + 20, // Placeholder
-        rating: Number((Math.random() * 3 + 2).toFixed(1)), // Convert to number
+        rating: Number((Math.random() * 3 + 2).toFixed(1)), // Placeholder rating between 2-5
         total_reviews: Math.floor(Math.random() * 100), // Placeholder
-        location: tutor.location,
-        experience: tutor.experience,
-      })) as Tutor[];
+        location: tutor.location || "Remote",
+        experience: tutor.experience || "New Tutor",
+      }));
+      
+      // If search term exists, filter client-side
+      if (searchTerm) {
+        return mappedTutors.filter(tutor => 
+          tutor.subjects?.some(subject => 
+            subject.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        );
+      }
+      
+      return mappedTutors;
     },
-    enabled: !!userId,
+    enabled: !!userId && studentSubjects.length > 0,
   });
 
   return {

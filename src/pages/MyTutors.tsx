@@ -12,6 +12,7 @@ import SubjectFilters from "@/components/tutors/SubjectFilters";
 import TutorGrid from "@/components/tutors/TutorGrid";
 import EmptyState from "@/components/tutors/EmptyState";
 import { useTutors } from "@/hooks/useTutors";
+import { toast } from "@/components/ui/use-toast";
 
 const MyTutors = () => {
   const { user } = useAuth();
@@ -35,6 +36,12 @@ const MyTutors = () => {
   };
 
   const handleBookSession = (tutorId: string) => {
+    // Show toast to inform user
+    toast({
+      title: "Booking initiated",
+      description: "You're being redirected to the booking page.",
+    });
+    
     navigate(`/booking/${tutorId}`);
   };
 
