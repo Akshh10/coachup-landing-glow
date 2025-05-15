@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabaseClient";
@@ -30,6 +29,20 @@ interface Tutor {
 interface StudentProfile {
   id: string;
   preferred_subjects?: string[];
+}
+
+// Define the shape of data returned from Supabase
+interface TutorProfileData {
+  id: string;
+  subjects: string[] | null;
+  is_active: boolean | null;
+  experience: string | null;
+  location: string | null;
+  profiles: {
+    id: string;
+    full_name: string | null;
+    profile_picture_url: string | null;
+  } | null;
 }
 
 const MyTutors = () => {
@@ -110,17 +123,17 @@ const MyTutors = () => {
       if (error) throw error;
 
       // Map and transform the data - fixing the type conversion and access issues
-      return (data || []).map((tutor) => ({
+      return (data || []).map((tutor: TutorProfileData) => ({
         id: tutor.id,
-        profile_picture_url: tutor.profiles ? tutor.profiles.profile_picture_url : undefined,
-        full_name: tutor.profiles ? tutor.profiles.full_name : "Unknown Tutor",
+        profile_picture_url: tutor.profiles?.profile_picture_url || undefined,
+        full_name: tutor.profiles?.full_name || "Unknown Tutor",
         subjects: tutor.subjects || [],
         hourly_rate: Math.floor(Math.random() * 40) + 20, // Placeholder
         rating: Number((Math.random() * 3 + 2).toFixed(1)), // Convert to number
         total_reviews: Math.floor(Math.random() * 100), // Placeholder
         location: tutor.location,
         experience: tutor.experience,
-      })) as Tutor[]; // This explicit cast ensures compatibility
+      })) as Tutor[];
     },
     enabled: !!user?.id,
   });
