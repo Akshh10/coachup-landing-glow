@@ -20,7 +20,7 @@ interface Tutor {
   full_name?: string;
   subjects?: string[];
   hourly_rate?: number;
-  rating?: number;
+  rating: number; // This is a number in the interface
   total_reviews?: number;
   location?: string;
   experience?: string;
@@ -108,18 +108,18 @@ const MyTutors = () => {
 
       if (error) throw error;
 
-      // Map and transform the data
+      // Map and transform the data - fixing the type conversion issues
       return data.map((tutor) => ({
         id: tutor.id,
         profile_picture_url: tutor.profiles?.profile_picture_url,
         full_name: tutor.profiles?.full_name || "Unknown Tutor",
         subjects: tutor.subjects || [],
         hourly_rate: Math.floor(Math.random() * 40) + 20, // Placeholder
-        rating: (Math.random() * 3 + 2).toFixed(1), // Placeholder between 2-5
+        rating: Number((Math.random() * 3 + 2).toFixed(1)), // Convert to number
         total_reviews: Math.floor(Math.random() * 100), // Placeholder
         location: tutor.location,
         experience: tutor.experience,
-      })) as Tutor[];
+      })) as Tutor[]; // This explicit cast ensures compatibility
     },
     enabled: !!user?.id,
   });
