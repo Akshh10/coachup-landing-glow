@@ -21,7 +21,7 @@ interface RawTutorData {
   is_active?: boolean;
   experience?: string;
   location?: string;
-  profiles?: {
+  profiles: {
     id: string;
     full_name?: string;
   };
@@ -89,7 +89,10 @@ export const useTutors = (userId: string | undefined) => {
       if (error) throw error;
 
       // Map and transform the data
-      const mappedTutors: Tutor[] = (data as RawTutorData[] || []).map((tutor) => ({
+      // First cast to unknown and then to RawTutorData[] to work around the type mismatch
+      const rawData = data as unknown as RawTutorData[];
+      
+      const mappedTutors: Tutor[] = rawData.map((tutor) => ({
         id: tutor.id,
         full_name: tutor.profiles?.full_name || "Unknown Tutor",
         subjects: tutor.subjects || [],
