@@ -81,6 +81,7 @@ export type Database = {
           available_times: string | null
           created_at: string | null
           experience: string | null
+          full_name: string | null
           id: string
           is_active: boolean | null
           location: string | null
@@ -94,6 +95,7 @@ export type Database = {
           available_times?: string | null
           created_at?: string | null
           experience?: string | null
+          full_name?: string | null
           id: string
           is_active?: boolean | null
           location?: string | null
@@ -107,6 +109,7 @@ export type Database = {
           available_times?: string | null
           created_at?: string | null
           experience?: string | null
+          full_name?: string | null
           id?: string
           is_active?: boolean | null
           location?: string | null

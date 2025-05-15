@@ -14,6 +14,19 @@ interface Tutor {
   full_name?: string;
 }
 
+// Interface for the raw tutor data from Supabase
+interface RawTutorData {
+  id: string;
+  subjects?: string[];
+  is_active?: boolean;
+  experience?: string;
+  location?: string;
+  profiles?: {
+    id: string;
+    full_name?: string;
+  };
+}
+
 export const useTutors = (userId: string | undefined) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [studentSubjects, setStudentSubjects] = useState<string[]>([]);
@@ -76,7 +89,7 @@ export const useTutors = (userId: string | undefined) => {
       if (error) throw error;
 
       // Map and transform the data
-      const mappedTutors: Tutor[] = (data || []).map((tutor) => ({
+      const mappedTutors: Tutor[] = (data as RawTutorData[] || []).map((tutor) => ({
         id: tutor.id,
         full_name: tutor.profiles?.full_name || "Unknown Tutor",
         subjects: tutor.subjects || [],
