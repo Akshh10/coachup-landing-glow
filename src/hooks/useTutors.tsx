@@ -76,7 +76,7 @@ export const useTutors = (userId: string | undefined) => {
       if (error) throw error;
 
       // Map and transform the data
-      const mappedTutors = (data || []).map((tutor) => ({
+      const mappedTutors: Tutor[] = (data || []).map((tutor) => ({
         id: tutor.id,
         full_name: tutor.profiles?.full_name || "Unknown Tutor",
         subjects: tutor.subjects || [],
