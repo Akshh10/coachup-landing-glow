@@ -10,7 +10,8 @@ import {
   Home, 
   FileText, 
   Search, 
-  LogOut 
+  LogOut,
+  BookOpen 
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
@@ -51,6 +52,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ userType }) => {
     { icon: <Home size={20} />, label: "Dashboard", href: "/student-dashboard" },
     { icon: <User size={20} />, label: "Profile", href: "/profile" },
     { icon: <Calendar size={20} />, label: "My Sessions", href: "/student-dashboard?tab=sessions" },
+    { icon: <BookOpen size={20} />, label: "My Tutors", href: "/my-tutors" },
     { icon: <Search size={20} />, label: "Find Tutors", href: "/student-dashboard?tab=find-tutors" },
   ];
 

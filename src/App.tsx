@@ -19,6 +19,7 @@ import StudentOnboarding from "./components/onboarding/StudentOnboarding";
 import RoleSelectDialog from "./pages/Auth/RoleSelectDialog";
 import Skills from "./pages/Skills";
 import Insights from "./pages/Insights";
+import MyTutors from "./pages/MyTutors";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -178,6 +179,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <BookingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-tutors"
+              element={
+                <ProtectedRoute requiredRole="student">
+                  <MyTutors />
                 </ProtectedRoute>
               }
             />
