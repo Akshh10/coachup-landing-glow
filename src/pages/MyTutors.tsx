@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabaseClient";
@@ -20,7 +21,7 @@ interface Tutor {
   full_name?: string;
   subjects?: string[];
   hourly_rate?: number;
-  rating: number; // This is a number in the interface
+  rating: number;
   total_reviews?: number;
   location?: string;
   experience?: string;
@@ -122,8 +123,8 @@ const MyTutors = () => {
 
       if (error) throw error;
 
-      // Map and transform the data - fixing the type conversion and access issues
-      return (data || []).map((tutor: TutorProfileData) => ({
+      // Map and transform the data
+      return (data || []).map((tutor: any) => ({
         id: tutor.id,
         profile_picture_url: tutor.profiles?.profile_picture_url || undefined,
         full_name: tutor.profiles?.full_name || "Unknown Tutor",
@@ -218,9 +219,9 @@ const MyTutors = () => {
         <div className="flex-1 p-6 overflow-auto">
           <div className="max-w-7xl mx-auto">
             <div className="mb-8">
-              <h1 className="text-2xl font-bold mb-2">My Tutors</h1>
+              <h1 className="text-2xl font-bold mb-2">Find Tutors</h1>
               <p className="text-gray-600">
-                Find tutors who match your learning needs
+                Discover tutors who specialize in your preferred subjects
               </p>
             </div>
 
@@ -239,6 +240,7 @@ const MyTutors = () => {
             {/* Subject pills for quick filtering */}
             {studentSubjects.length > 0 && (
               <div className="mb-6 flex flex-wrap gap-2">
+                <span className="text-sm font-medium text-gray-700 mr-2 self-center">Your subjects:</span>
                 {studentSubjects.map((subject) => (
                   <Badge 
                     key={subject}
@@ -256,7 +258,7 @@ const MyTutors = () => {
             {tutors && tutors.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {tutors.map((tutor) => (
-                  <Card key={tutor.id} className="hover-card overflow-hidden">
+                  <Card key={tutor.id} className="overflow-hidden hover:shadow-md transition-shadow">
                     <CardContent className="p-0">
                       <div className="p-6">
                         <div className="flex items-center mb-4">
@@ -292,9 +294,17 @@ const MyTutors = () => {
                           </div>
                         </div>
 
-                        {/* Rate */}
+                        {/* Rate and experience */}
                         <div className="mb-4">
                           <p className="text-lg font-semibold text-green-600">${tutor.hourly_rate}/hour</p>
+                          {tutor.experience && (
+                            <p className="text-sm text-gray-600 mt-1">{tutor.experience}</p>
+                          )}
+                          {tutor.location && (
+                            <p className="text-sm text-gray-600 mt-1">
+                              <span className="font-medium">Location:</span> {tutor.location}
+                            </p>
+                          )}
                         </div>
 
                         {/* Action buttons */}
@@ -324,7 +334,9 @@ const MyTutors = () => {
                 <p className="text-gray-500 mb-4">
                   {searchTerm 
                     ? `No tutors found matching "${searchTerm}"`
-                    : "No tutors match your preferred subjects yet"
+                    : studentSubjects.length > 0
+                      ? "No tutors match your preferred subjects yet"
+                      : "Please update your profile with preferred subjects to find matching tutors"
                   }
                 </p>
                 {searchTerm && (
