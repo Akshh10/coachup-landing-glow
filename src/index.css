@@ -131,7 +131,17 @@
   
   /* Button glow effect */
   .button-glow {
-    @apply hover:shadow-[0_0_12px_rgba(62,100,255,0.6)] transition-all duration-300;
+    @apply hover:shadow-[0_0_15px_rgba(62,100,255,0.7)] transition-all duration-300 hover:scale-[1.03];
+  }
+  
+  /* Enhanced CTA button glow effect */
+  .cta-button-glow {
+    @apply relative overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(62,100,255,0.6)];
+  }
+  
+  /* Badge pulse animation */
+  .badge-pulse {
+    @apply animate-pulse-subtle;
   }
   
   /* Tag styles */
@@ -175,12 +185,40 @@
   }
 }
 
+@keyframes subtle-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 0.95;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
 .animate-fade-in-up {
   animation: fadeInUp 0.6s ease-out forwards;
 }
 
 .animate-scale-in {
   animation: scaleIn 0.5s ease-out forwards;
+}
+
+.animate-pulse-subtle {
+  animation: subtle-pulse 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
 }
 
 /* Delayed animations for staggered effects */
@@ -203,4 +241,26 @@
 /* Glassmorphism effect */
 .glass-card {
   @apply bg-white bg-opacity-80 backdrop-blur-md;
+}
+
+/* Hero background with cool tones */
+.cool-gradient {
+  @apply bg-gradient-to-br from-[#eef3ff] via-[#dbe9ff] to-[#f8faff];
+}
+
+/* Click ripple effect */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+  background-color: rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
 }

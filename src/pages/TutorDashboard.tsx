@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from "@/hooks/useAuth";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -150,18 +150,50 @@ const TutorDashboard: React.FC = () => {
     ]
   };
 
+  // Animation variants for content transitions
+  const contentVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 }
+    },
+    exit: {
+      opacity: 0,
+      y: -20,
+      transition: { duration: 0.3 }
+    }
+  };
+
   // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
           <h2 className="text-xl font-semibold mb-2">Loading your dashboard...</h2>
-          <div className="mt-4 animate-pulse flex justify-center">
-            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1"></div>
-            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1 animate-pulse delay-100"></div>
-            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1 animate-pulse delay-200"></div>
+          <div className="mt-4 flex justify-center">
+            {[0, 1, 2].map((i) => (
+              <motion.div 
+                key={i}
+                className="w-3 h-3 bg-blue-500 rounded-full mx-1"
+                animate={{
+                  scale: [1, 1.5, 1],
+                  opacity: [0.6, 1, 0.6]
+                }}
+                transition={{
+                  duration: 1,
+                  repeat: Infinity,
+                  delay: i * 0.2
+                }}
+              />
+            ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -169,39 +201,58 @@ const TutorDashboard: React.FC = () => {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <motion.div 
+        className="min-h-screen flex items-center justify-center bg-gray-50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-2 text-red-600">Error</h2>
           <p className="text-gray-600">{error}</p>
         </div>
-      </div>
+      </motion.div>
     );
   }
   
   const renderContent = () => {
-    switch (tab) {
-      case "profile":
-        return <ProfileSection profile={combinedProfile} />;
-      case "bookings":
-        return <BookingsSection bookings={bookings} />;
-      case "availability":
-        return <AvailabilitySection timeSlots={timeSlots} />;
-      case "reviews":
-        return <ReviewsSection 
-                reviews={reviews}
-                averageRating={4.8}
-                totalReviews={reviews.length}
-               />;
-      case "earnings":
-        return <EarningsSection earnings={earnings} />;
-      default:
-        return (
-          <div className="space-y-6">
-            <ProfileSection profile={combinedProfile} />
-            <BookingsSection bookings={bookings} />
-          </div>
-        );
-    }
+    return (
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={tab}
+          variants={contentVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+        >
+          {(() => {
+            switch (tab) {
+              case "profile":
+                return <ProfileSection profile={combinedProfile} />;
+              case "bookings":
+                return <BookingsSection bookings={bookings} />;
+              case "availability":
+                return <AvailabilitySection timeSlots={timeSlots} />;
+              case "reviews":
+                return <ReviewsSection 
+                        reviews={reviews}
+                        averageRating={4.8}
+                        totalReviews={reviews.length}
+                       />;
+              case "earnings":
+                return <EarningsSection earnings={earnings} />;
+              default:
+                return (
+                  <div className="space-y-6">
+                    <ProfileSection profile={combinedProfile} />
+                    <BookingsSection bookings={bookings} />
+                  </div>
+                );
+            }
+          })()}
+        </motion.div>
+      </AnimatePresence>
+    );
   };
   
   return (

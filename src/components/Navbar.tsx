@@ -69,18 +69,19 @@ const Navbar = () => {
               )}>
                 Skills
               </NavigationMenuTrigger>
-              <NavigationMenuContent className="bg-white p-4 rounded-md shadow-lg w-[500px] z-50">
-                <div className="grid grid-cols-2 gap-4">
+              <NavigationMenuContent className="bg-white p-6 rounded-lg shadow-lg w-[600px] z-50">
+                <div className="grid grid-cols-2 gap-8">
                   {skillCategories.map((category) => (
-                    <div key={category.title}>
-                      <h3 className="font-medium text-[#3E64FF] mb-2">{category.title}</h3>
-                      <ul className="space-y-1">
+                    <div key={category.title} className="space-y-3">
+                      <h3 className="font-medium text-[#3E64FF] mb-2 text-base border-b pb-1">{category.title}</h3>
+                      <ul className="grid grid-cols-2 gap-y-2">
                         {category.items.map((item) => (
                           <li key={item}>
                             <Link 
                               to={`/skills?category=${category.title.toLowerCase()}&skill=${item.toLowerCase()}`}
-                              className="text-sm text-gray-600 hover:text-[#3E64FF] hover:underline"
+                              className="text-sm text-gray-600 hover:text-[#3E64FF] hover:underline transition-colors duration-200 flex items-center"
                             >
+                              <span className="w-1.5 h-1.5 bg-[#3E64FF] rounded-full mr-2 opacity-70"></span>
                               {item}
                             </Link>
                           </li>
