@@ -18,7 +18,6 @@ export type Database = {
           phone: string | null
           profile_picture_url: string | null
           role: string
-          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
@@ -28,7 +27,6 @@ export type Database = {
           phone?: string | null
           profile_picture_url?: string | null
           role: string
-          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
@@ -38,70 +36,33 @@ export type Database = {
           phone?: string | null
           profile_picture_url?: string | null
           role?: string
-          updated_at?: string | null
         }
         Relationships: []
       }
       student_profiles: {
         Row: {
-          available_days: string | null
-          available_times: string | null
           created_at: string | null
-          curriculum: string | null
-          experience_level:
-            | Database["public"]["Enums"]["experience_level_enum"]
-            | null
           grade_level: string | null
           id: string
           learning_goals: string | null
-          onboarding_completed: boolean | null
-          preferred_learning_mode:
-            | Database["public"]["Enums"]["learning_mode_enum"]
-            | null
           preferred_subjects: string[] | null
-          skills: string[] | null
           updated_at: string | null
-          use_case: string | null
         }
         Insert: {
-          available_days?: string | null
-          available_times?: string | null
           created_at?: string | null
-          curriculum?: string | null
-          experience_level?:
-            | Database["public"]["Enums"]["experience_level_enum"]
-            | null
           grade_level?: string | null
           id: string
           learning_goals?: string | null
-          onboarding_completed?: boolean | null
-          preferred_learning_mode?:
-            | Database["public"]["Enums"]["learning_mode_enum"]
-            | null
           preferred_subjects?: string[] | null
-          skills?: string[] | null
           updated_at?: string | null
-          use_case?: string | null
         }
         Update: {
-          available_days?: string | null
-          available_times?: string | null
           created_at?: string | null
-          curriculum?: string | null
-          experience_level?:
-            | Database["public"]["Enums"]["experience_level_enum"]
-            | null
           grade_level?: string | null
           id?: string
           learning_goals?: string | null
-          onboarding_completed?: boolean | null
-          preferred_learning_mode?:
-            | Database["public"]["Enums"]["learning_mode_enum"]
-            | null
           preferred_subjects?: string[] | null
-          skills?: string[] | null
           updated_at?: string | null
-          use_case?: string | null
         }
         Relationships: [
           {
@@ -118,75 +79,42 @@ export type Database = {
           availability: Json | null
           available_days: string[] | null
           available_times: string | null
-          bio: string | null
-          certifications: string[] | null
           created_at: string | null
           experience: string | null
-          experience_years: string | null
           full_name: string | null
-          hourly_rate: number | null
           id: string
           is_active: boolean | null
-          languages_spoken: string[] | null
           location: string | null
           old_subjects: Json | null
-          onboarding_completed: boolean | null
-          skills: string[] | null
           subjects: string[] | null
-          target_student_types: string[] | null
-          teaching_mode:
-            | Database["public"]["Enums"]["teaching_mode_enum"]
-            | null
           updated_at: string | null
         }
         Insert: {
           availability?: Json | null
           available_days?: string[] | null
           available_times?: string | null
-          bio?: string | null
-          certifications?: string[] | null
           created_at?: string | null
           experience?: string | null
-          experience_years?: string | null
           full_name?: string | null
-          hourly_rate?: number | null
           id: string
           is_active?: boolean | null
-          languages_spoken?: string[] | null
           location?: string | null
           old_subjects?: Json | null
-          onboarding_completed?: boolean | null
-          skills?: string[] | null
           subjects?: string[] | null
-          target_student_types?: string[] | null
-          teaching_mode?:
-            | Database["public"]["Enums"]["teaching_mode_enum"]
-            | null
           updated_at?: string | null
         }
         Update: {
           availability?: Json | null
           available_days?: string[] | null
           available_times?: string | null
-          bio?: string | null
-          certifications?: string[] | null
           created_at?: string | null
           experience?: string | null
-          experience_years?: string | null
           full_name?: string | null
-          hourly_rate?: number | null
           id?: string
           is_active?: boolean | null
-          languages_spoken?: string[] | null
           location?: string | null
           old_subjects?: Json | null
-          onboarding_completed?: boolean | null
-          skills?: string[] | null
           subjects?: string[] | null
-          target_student_types?: string[] | null
-          teaching_mode?:
-            | Database["public"]["Enums"]["teaching_mode_enum"]
-            | null
           updated_at?: string | null
         }
         Relationships: [
@@ -207,9 +135,6 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      experience_level_enum: "beginner" | "intermediate" | "advanced"
-      learning_mode_enum: "online" | "offline" | "hybrid"
-      teaching_mode_enum: "online" | "offline" | "hybrid"
       user_role: "student" | "tutor"
     }
     CompositeTypes: {
@@ -326,9 +251,6 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      experience_level_enum: ["beginner", "intermediate", "advanced"],
-      learning_mode_enum: ["online", "offline", "hybrid"],
-      teaching_mode_enum: ["online", "offline", "hybrid"],
       user_role: ["student", "tutor"],
     },
   },

@@ -36,7 +36,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="py-20 md:py-28 bg-gradient-to-b from-[#eef3ff] to-[#dbe9ff] overflow-hidden relative">
+    <section className="py-20 md:py-28 bg-gradient-to-b from-navy-50 to-white overflow-hidden relative">
       {/* Animated background elements */}
       <motion.div 
         className="absolute top-20 right-20 w-32 h-32 bg-[#E6F3FF] rounded-full blur-3xl opacity-50"
@@ -85,36 +85,16 @@ const Hero = () => {
             <div className="mt-10">
               <Link to="/signup">
                 <Button 
-                  className="text-white bg-navy-700 hover:bg-navy-800 font-medium px-6 py-6 text-base rounded-lg shadow-lg cta-button-glow transition-all hover:scale-105"
+                  className="text-white bg-navy-700 hover:bg-navy-800 font-medium px-6 py-6 text-base rounded-lg shadow-lg cta-button transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-200"
                 >
-                  <span className="relative inline-flex items-center">
-                    Join UpSkill Today
-                    <motion.span
-                      animate={{ x: [0, 4, 0] }}
-                      transition={{ 
-                        duration: 1.5, 
-                        repeat: Infinity,
-                        repeatType: "loop" 
-                      }}
-                      className="ml-2"
-                    >
-                      →
-                    </motion.span>
-                  </span>
+                  Join UpSkill Today
                 </Button>
               </Link>
             </div>
           </motion.div>
           
           <div className="md:w-1/2 relative">
-            <motion.div 
-              variants={itemVariants} 
-              className="relative z-10"
-              whileHover={{ 
-                scale: 1.03,
-                transition: { duration: 0.4 } 
-              }}
-            >
+            <motion.div variants={itemVariants} className="relative z-10">
               <div className="bg-white rounded-2xl shadow-2xl p-3 md:ml-10 overflow-hidden">
                 <img 
                   src="https://images.unsplash.com/photo-1606761568499-6d2451b23c66?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80" 

@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -13,12 +13,6 @@ import WhyChooseUs from "@/components/WhyChooseUs";
 import Blogs from "@/components/Blogs";
 import BecomeCoach from "@/components/BecomeCoach";
 import Footer from "@/components/Footer";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 const Index = () => {
   const { user, role } = useAuth();
@@ -34,44 +28,11 @@ const Index = () => {
       <Navbar />
       
       {/* Hero Section with animation */}
-      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#eef3ff] via-[#dbe9ff] to-[#f8faff] overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f0f4ff] via-[#e6f3ff] to-[#f8faff] overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
-          <motion.div 
-            className="absolute top-1/4 left-1/4 w-64 h-64 lg:w-96 lg:h-96 bg-[#3E64FF]/10 rounded-full filter blur-3xl"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.5, 0.7, 0.5]
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
-          />
-          <motion.div 
-            className="absolute top-1/3 right-1/4 w-32 h-32 lg:w-64 lg:h-64 bg-[#32D296]/10 rounded-full filter blur-3xl"
-            animate={{
-              scale: [1, 1.3, 1],
-              opacity: [0.4, 0.6, 0.4]
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
-          />
-          <motion.div 
-            className="absolute bottom-1/4 right-1/3 w-48 h-48 lg:w-80 lg:h-80 bg-[#F0B103]/10 rounded-full filter blur-3xl"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.4, 0.5, 0.4]
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
-          />
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 lg:w-96 lg:h-96 bg-[#3E64FF]/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+          <div className="absolute top-1/3 right-1/4 w-32 h-32 lg:w-64 lg:h-64 bg-[#32D296]/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
+          <div className="absolute bottom-1/4 right-1/3 w-48 h-48 lg:w-80 lg:h-80 bg-[#F0B103]/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '10s' }} />
         </div>
         
         <div className="container mx-auto px-4 pt-24 z-10">
@@ -91,14 +52,14 @@ const Index = () => {
               
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-center lg:justify-start">
                 <Button 
-                  className="bg-[#3E64FF] hover:bg-[#2D4FD6] text-white px-6 py-6 text-lg cta-button-glow"
+                  className="bg-[#3E64FF] hover:bg-[#2D4FD6] text-white px-6 py-6 text-lg"
                   asChild
                 >
                   <Link to="/register">Join UpSkill</Link>
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="border-[#3E64FF] text-[#3E64FF] hover:bg-[#3E64FF]/10 px-6 py-6 text-lg cta-button-glow"
+                  className="border-[#3E64FF] text-[#3E64FF] hover:bg-[#3E64FF]/10 px-6 py-6 text-lg"
                   onClick={scrollToHowItWorks}
                 >
                   Learn More
@@ -112,33 +73,23 @@ const Index = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <motion.div className="relative" whileHover={{ scale: 1.02 }} transition={{ duration: 0.4 }}>
+              <div className="relative">
                 <img 
                   src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1171&q=80" 
                   alt="Students learning" 
-                  className="rounded-xl shadow-2xl mx-auto transition-all duration-300"
+                  className="rounded-xl shadow-2xl mx-auto"
                 />
                 
                 {/* Floating elements */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <motion.div 
-                        className="absolute -top-8 -left-8 bg-white rounded-lg shadow-lg p-3 flex items-center animate-float"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: 0.6 }}
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        <span className="text-[#3E64FF] text-xl font-bold mr-2">1000+</span>
-                        <span className="text-sm">Expert Tutors</span>
-                      </motion.div>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      <p>Verified professionals across India & abroad</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <motion.div 
+                  className="absolute -top-8 -left-8 bg-white rounded-lg shadow-lg p-3 flex items-center"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.6 }}
+                >
+                  <span className="text-[#3E64FF] text-xl font-bold mr-2">1000+</span>
+                  <span className="text-sm">Expert Tutors</span>
+                </motion.div>
                 
                 <motion.div 
                   className="absolute -bottom-8 -right-8 bg-white rounded-lg shadow-lg p-3"
@@ -165,38 +116,9 @@ const Index = () => {
                   </div>
                   <span className="text-sm">4.9 Average Rating</span>
                 </motion.div>
-              </motion.div>
+              </div>
             </motion.div>
           </div>
-        </div>
-
-        {/* Helper button */}
-        <div className="fixed bottom-6 right-6 z-40">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link to="/tutors">
-                  <motion.div 
-                    className="w-12 h-12 rounded-full bg-[#3E64FF] flex items-center justify-center shadow-lg text-white cursor-pointer"
-                    whileHover={{ scale: 1.1, boxShadow: "0 0 20px rgba(62, 100, 255, 0.6)" }}
-                    whileTap={{ scale: 0.95 }}
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                      <path d="M12 17h.01" />
-                    </svg>
-                  </motion.div>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="left" align="center">
-                <p>Need help finding a tutor?</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
       </section>
       
@@ -446,25 +368,6 @@ const Index = () => {
       <Footer />
     </div>
   );
-};
-
-// Add click ripple effect
-const addRippleEffect = () => {
-  document.addEventListener('click', (e) => {
-    const x = e.clientX;
-    const y = e.clientY;
-    
-    const ripple = document.createElement('div');
-    ripple.className = 'ripple';
-    ripple.style.left = `${x}px`;
-    ripple.style.top = `${y}px`;
-    
-    document.body.appendChild(ripple);
-    
-    setTimeout(() => {
-      ripple.remove();
-    }, 600);
-  });
 };
 
 export default Index;

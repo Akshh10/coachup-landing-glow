@@ -97,64 +97,72 @@ const AuthCallback = () => {
           return;
         }
 
-        // For users that are not in a signup flow (coming from somewhere else)
-        // Always prioritize sending them to onboarding if it's incomplete
-        if (role === 'tutor') {
-          // Check if tutor has completed onboarding
-          const { data: tutorProfile, error: tutorError } = await supabase
-            .from('tutor_profiles')
-            .select('onboarding_completed')
-            .eq('id', user.id)
-            .maybeSingle();
-          
-          if (tutorError) {
-            console.error('Error fetching tutor profile:', tutorError);
-            setError('Unable to verify your tutor profile status.');
-            return;
-          }
-          
-          // If profile doesn't exist or onboarding not completed, send to onboarding
-          if (!tutorProfile || tutorProfile.onboarding_completed === false) {
-            console.log("Tutor needs to complete onboarding");
-            navigate('/tutor-onboarding', { replace: true });
-          } else {
-            // Otherwise go to dashboard
-            console.log("Tutor onboarding already completed, going to dashboard");
-            navigate('/tutor-dashboard', { replace: true });
-          }
-        } else if (role === 'student') {
-          // Check if student has completed onboarding
-          const { data: studentProfile, error: studentError } = await supabase
-            .from('student_profiles')
-            .select('onboarding_completed')
-            .eq('id', user.id)
-            .maybeSingle();
-          
-          if (studentError) {
-            console.error('Error fetching student profile:', studentError);
-            setError('Unable to verify your student profile status.');
-            return;
-          }
-          
-          // If profile doesn't exist or onboarding not completed, send to onboarding
-          if (!studentProfile || studentProfile.onboarding_completed === false) {
-            console.log("Student needs to complete onboarding");
-            navigate('/student-onboarding', { replace: true });
-          } else {
-            // Otherwise go to dashboard
-            console.log("Student onboarding already completed, going to dashboard");
-            navigate('/student-dashboard', { replace: true });
-          }
-        } else {
-          // If no role is set yet, navigate to role selection
-          console.log("No role found, redirecting to role selection");
-          navigate('/role-select', { replace: true });
-        }
+        // For non-signup flows (regular logins), use normal routing
+        routeToDestination(isNewUser, role);
+        
       } catch (err) {
         console.error("Error checking user status:", err);
         setError('An unexpected error occurred. Please try again.');
       } finally {
         setCheckingStatus(false);
+      }
+    };
+
+    // Helper function to handle routing logic
+    const routeToDestination = (isNewUser: boolean, userRole: string | null) => {
+      if (userRole === 'tutor') {
+        if (isNewUser) {
+          // Check if they need onboarding
+          checkTutorProfile();
+        } else {
+          // Existing user login - go to dashboard
+          navigate('/tutor-dashboard', { replace: true });
+        }
+      } else if (userRole === 'student') {
+        if (isNewUser) {
+          // Check if they need onboarding
+          checkStudentProfile();
+        } else {
+          // Existing user login - go to dashboard
+          navigate('/student-dashboard', { replace: true });
+        }
+      } else {
+        // If no role is set yet, navigate to role selection (only for new users)
+        if (isNewUser) {
+          console.log("New user with no role, redirecting to role selection");
+          navigate('/role-select', { replace: true });
+        } else {
+          // If existing user has no role (shouldn't happen normally), send to homepage
+          navigate('/', { replace: true });
+        }
+      }
+    };
+
+    // Check if tutor profile exists
+    const checkTutorProfile = async () => {
+      try {
+        console.log("Checking if tutor profile exists for new user");
+        
+        // For a new sign-up, always direct to onboarding
+        // We don't need to check the database for profile existence
+        navigate('/tutor-onboarding', { replace: true });
+      } catch (err) {
+        console.error("Error checking tutor profile:", err);
+        setError('An unexpected error occurred. Please try again.');
+      }
+    };
+
+    // Check if student profile exists
+    const checkStudentProfile = async () => {
+      try {
+        console.log("Checking if student profile exists for new user");
+        
+        // For a new sign-up, always direct to onboarding
+        // We don't need to check the database for profile existence
+        navigate('/student-onboarding', { replace: true });
+      } catch (err) {
+        console.error("Error checking student profile:", err);
+        setError('An unexpected error occurred. Please try again.');
       }
     };
 
