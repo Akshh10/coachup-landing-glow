@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -12,6 +11,7 @@ import { User, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import useRipple from "@/hooks/useRipple";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -23,6 +23,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { createRipple } = useRipple();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -174,8 +175,9 @@ const Login = () => {
               
               <Button 
                 type="submit" 
-                className="w-full py-6 bg-[#3E64FF] hover:bg-[#2D4FD6] text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)] group mt-4"
+                className="w-full py-6 bg-[#3E64FF] hover:bg-[#2D4FD6] text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)] group mt-4 ripple-container"
                 disabled={isLoading}
+                onMouseDown={createRipple}
               >
                 <span>{isLoading ? 'Signing In...' : 'Sign In'}</span>
                 <ArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
