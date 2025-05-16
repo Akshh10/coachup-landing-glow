@@ -39,14 +39,13 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
       onChange([...value, option]);
     }
     setInputValue('');
-    // Don't close dropdown immediately to allow selecting multiple items
+    setIsOpen(false); // Close dropdown after selection
   };
   
   const handleRemove = (option: string) => {
     onChange(value.filter(item => item !== option));
   };
   
-  // Filter options based on input and current selections
   const filteredOptions = options.filter(option => 
     !value.includes(option) && 
     option.toLowerCase().includes(inputValue.toLowerCase())
@@ -54,17 +53,13 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   
   return (
     <div className={`relative ${className}`} ref={containerRef}>
-      <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-background min-h-[42px]" 
-           onClick={() => setIsOpen(true)}>
+      <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-background min-h-[42px]">
         {value.map(item => (
           <div key={item} className="flex items-center bg-[#E6EFFF] text-[#3E64FF] rounded-full px-3 py-1 text-sm">
             {item}
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent opening dropdown when clicking remove
-                handleRemove(item);
-              }}
+              onClick={() => handleRemove(item)}
               className="ml-2 text-[#3E64FF] hover:text-red-500"
             >
               ×
@@ -76,9 +71,19 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
           value={inputValue}
           onChange={(e) => {
             setInputValue(e.target.value);
-            if (!isOpen) setIsOpen(true);
+            if (e.target.value.trim() !== '') {
+              setIsOpen(true);
+            }
           }}
           onFocus={() => setIsOpen(true)}
+          onBlur={(e) => {
+            // Don't close immediately to allow for click on option
+            setTimeout(() => {
+              if (document.activeElement !== e.target) {
+                setIsOpen(false);
+              }
+            }, 150);
+          }}
           placeholder={value.length === 0 ? placeholder : ""}
           className="flex-grow border-none outline-none bg-transparent p-1 text-sm"
         />
@@ -89,7 +94,10 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
           {filteredOptions.map(option => (
             <div
               key={option}
-              onClick={() => handleSelect(option)}
+              onMouseDown={(e) => {
+                e.preventDefault(); // Prevent blur
+                handleSelect(option);
+              }}
               className="p-2 hover:bg-[#F0F4FF] cursor-pointer text-sm"
             >
               {option}

@@ -11,7 +11,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import useRipple from "@/hooks/useRipple";
 
 interface TutorCardProps {
   tutor: {
@@ -29,8 +28,6 @@ interface TutorCardProps {
 }
 
 const TutorCard: React.FC<TutorCardProps> = ({ tutor, onViewProfile, onBookSession }) => {
-  const { createRipple } = useRipple();
-  
   return (
     <motion.div
       whileHover={{ 
@@ -87,20 +84,14 @@ const TutorCard: React.FC<TutorCardProps> = ({ tutor, onViewProfile, onBookSessi
             <div className="flex flex-col sm:flex-row gap-2 pt-2">
               <Button
                 variant="outline"
-                className="flex-1 button-glow ripple-container"
-                onClick={(e) => {
-                  createRipple(e);
-                  onViewProfile(tutor.id);
-                }}
+                className="flex-1 button-glow"
+                onClick={() => onViewProfile(tutor.id)}
               >
                 View Profile
               </Button>
               <Button
-                className="flex-1 button-glow ripple-container"
-                onClick={(e) => {
-                  createRipple(e);
-                  onBookSession(tutor.id);
-                }}
+                className="flex-1 button-glow"
+                onClick={() => onBookSession(tutor.id)}
               >
                 Book Session
               </Button>

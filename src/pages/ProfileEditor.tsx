@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import MultiSelect from "@/components/ui/multi-select";
-import useRipple from "@/hooks/useRipple";
 
 const ProfileEditor = () => {
   const { user, role, profile, isLoading } = useAuth();
@@ -19,7 +18,6 @@ const ProfileEditor = () => {
   const [gradeLevel, setGradeLevel] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
-  const { createRipple } = useRipple();
 
   // Mock skills for autocomplete
   const skillOptions = [
@@ -203,12 +201,9 @@ const ProfileEditor = () => {
               )}
               
               <Button 
-                className="w-full md:w-auto ripple-container"
+                className="w-full md:w-auto"
                 disabled={isSaving}
-                onClick={(e) => {
-                  createRipple(e);
-                  handleSaveProfile();
-                }}
+                onClick={handleSaveProfile}
               >
                 {isSaving ? "Saving..." : "Save Changes"}
               </Button>

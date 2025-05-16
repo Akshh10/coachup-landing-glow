@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -13,8 +14,72 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import useRipple from "@/hooks/useRipple";
-import MultiSelect from "@/components/ui/multi-select";
+
+// Define multi-select components
+const MultiSelect = ({ options, value, onChange, placeholder }) => {
+  const [inputValue, setInputValue] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const handleSelect = (option) => {
+    if (!value.includes(option)) {
+      onChange([...value, option]);
+    }
+    setInputValue('');
+  };
+  
+  const handleRemove = (option) => {
+    onChange(value.filter(item => item !== option));
+  };
+  
+  const filteredOptions = options.filter(option => 
+    !value.includes(option) && 
+    option.toLowerCase().includes(inputValue.toLowerCase())
+  );
+  
+  return (
+    <div className="relative">
+      <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-background">
+        {value.map(item => (
+          <div key={item} className="flex items-center bg-[#E6EFFF] text-[#3E64FF] rounded-full px-3 py-1 text-sm">
+            {item}
+            <button
+              type="button"
+              onClick={() => handleRemove(item)}
+              className="ml-2 text-[#3E64FF] hover:text-red-500"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
+          placeholder={value.length === 0 ? placeholder : ""}
+          className="flex-grow border-none outline-none bg-transparent p-1 text-sm"
+        />
+      </div>
+      
+      {isOpen && filteredOptions.length > 0 && (
+        <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+          {filteredOptions.map(option => (
+            <div
+              key={option}
+              onClick={() => handleSelect(option)}
+              className="p-2 hover:bg-[#F0F4FF] cursor-pointer text-sm"
+            >
+              {option}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Define the multi-step form schema
 const teachingDetailsSchema = z.object({
@@ -87,7 +152,6 @@ const TutorOnboarding = () => {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [typingText, setTypingText] = useState({ current: '', target: '', index: 0 });
-  const { createRipple } = useRipple();
 
   // Initialize typing animation for sample text
   React.useEffect(() => {
@@ -165,7 +229,6 @@ const TutorOnboarding = () => {
     setStep(3);
   };
 
-  // Modified handlePhotoSubmit to ensure proper data saving to Supabase
   const handlePhotoSubmit = async () => {
     setIsSubmitting(true);
 
@@ -176,17 +239,6 @@ const TutorOnboarding = () => {
       if (uploadedPhoto && user) {
         const fileExt = uploadedPhoto.name.split('.').pop();
         const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        
-        // Create a storage bucket if it doesn't exist
-        const { data: bucketData, error: bucketError } = await supabase.storage
-          .getBucket('tutor-photos');
-          
-        if (bucketError && bucketError.message.includes('not found')) {
-          // Bucket doesn't exist, create it
-          await supabase.storage.createBucket('tutor-photos', {
-            public: true, // Make bucket public to access photos
-          });
-        }
         
         const { error: uploadError } = await supabase.storage
           .from('tutor-photos')
@@ -203,26 +255,20 @@ const TutorOnboarding = () => {
         photoUrl = data.publicUrl;
       }
       
-      // Prepare the update data
-      const updateData = {
-        languages_spoken: formData.languages,
-        certifications: formData.certifications,
-        subjects: formData.skills,
-        experience: formData.bio,
-        teaching_mode: formData.teachingMode,
-        hourly_rate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : null,
-        target_student_types: formData.studentTypes,
-        onboarding_completed: true
-      };
-      
-      if (photoUrl) {
-        updateData['photo_url'] = photoUrl;
-      }
-      
       // Save all tutor profile data
       const { error } = await supabase
         .from('tutor_profiles')
-        .update(updateData)
+        .update({
+          languages: formData.languages,
+          certifications: formData.certifications,
+          subjects: formData.skills,
+          experience: formData.bio,
+          teaching_mode: formData.teachingMode,
+          hourly_rate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : null,
+          target_students: formData.studentTypes,
+          photo_url: photoUrl || null,
+          onboarding_completed: true
+        })
         .eq('id', user?.id);
 
       if (error) {
@@ -450,8 +496,7 @@ const TutorOnboarding = () => {
 
                       <Button 
                         type="submit" 
-                        className="w-full bg-[#3E64FF] hover:bg-[#2D4FD6] text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)] ripple-container"
-                        onClick={createRipple}
+                        className="w-full bg-[#3E64FF] hover:bg-[#2D4FD6] text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)]"
                       >
                         Continue
                       </Button>
@@ -520,15 +565,12 @@ const TutorOnboarding = () => {
                           type="button" 
                           variant="outline" 
                           onClick={() => setStep(1)}
-                          className="ripple-container"
-                          onMouseDown={createRipple}
                         >
                           Back
                         </Button>
                         <Button 
                           type="submit" 
-                          className="bg-[#3E64FF] hover:bg-[#2D4FD6] text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)] ripple-container"
-                          onMouseDown={createRipple}
+                          className="bg-[#3E64FF] hover:bg-[#2D4FD6] text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)]"
                         >
                           Continue
                         </Button>
@@ -614,17 +656,14 @@ const TutorOnboarding = () => {
                       type="button" 
                       variant="outline" 
                       onClick={() => setStep(2)}
-                      className="ripple-container"
-                      onMouseDown={createRipple}
                     >
                       Back
                     </Button>
                     <Button 
                       type="button" 
-                      className="bg-[#3E64FF] hover:bg-[#2D4FD6] text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)] ripple-container"
+                      className="bg-[#3E64FF] hover:bg-[#2D4FD6] text-white transition-all duration-300 hover:shadow-[0_0_12px_rgba(62,100,255,0.6)]"
                       onClick={handlePhotoSubmit}
                       disabled={isSubmitting}
-                      onMouseDown={createRipple}
                     >
                       {isSubmitting ? "Creating Profile..." : "Complete Profile"}
                     </Button>
