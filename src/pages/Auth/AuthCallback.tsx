@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,82 +7,94 @@ import { motion } from 'framer-motion';
 const AuthCallback = () => {
   const { user, role, isLoading } = useAuth();
   const navigate = useNavigate();
-  const [checkingOnboarding, setCheckingOnboarding] = useState(true);
+  const [checkingStatus, setCheckingStatus] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkOnboardingStatus = async () => {
+    const checkUserStatus = async () => {
       if (!user || isLoading) return;
 
       try {
-        console.log("Checking onboarding status for role:", role);
+        console.log("Checking user status for role:", role);
+        
+        // Get the user auth metadata to check if this is a brand new sign-up
+        const { data: userData } = await supabase.auth.getUser();
+        const isNewUser = userData?.user?.app_metadata?.is_new_user || false;
+        
+        console.log("Is new user:", isNewUser);
         
         if (role === 'tutor') {
-          const { data, error } = await supabase
-            .from('tutor_profiles')
-            .select('onboarding_completed')
-            .eq('id', user.id)
-            .maybeSingle();
+          if (isNewUser) {
+            // New user registration - check if they need onboarding
+            const { data, error } = await supabase
+              .from('tutor_profiles')
+              .select('id')
+              .eq('id', user.id)
+              .maybeSingle();
+              
+            if (error) {
+              console.error('Error fetching tutor profile:', error);
+              setError('Unable to verify your tutor profile. Please try again.');
+              return;
+            }
             
-          if (error) {
-            console.error('Error fetching tutor profile:', error);
-            setError('Unable to verify your tutor profile. Please try again.');
-            return;
-          }
-          
-          console.log("Tutor profile data:", data);
-          
-          if (data?.onboarding_completed) {
-            navigate('/tutor-dashboard', { replace: true });
+            // If no profile exists, send to onboarding
+            if (!data) {
+              navigate('/tutor-onboarding', { replace: true });
+            } else {
+              navigate('/tutor-dashboard', { replace: true });
+            }
           } else {
-            navigate('/tutor-onboarding', { replace: true });
+            // Existing user login - always go to dashboard
+            navigate('/tutor-dashboard', { replace: true });
           }
         } else if (role === 'student') {
-          const { data, error } = await supabase
-            .from('student_profiles')
-            .select('onboarding_completed')
-            .eq('id', user.id)
-            .maybeSingle();
+          if (isNewUser) {
+            // New user registration - check if they need onboarding
+            const { data, error } = await supabase
+              .from('student_profiles')
+              .select('id')
+              .eq('id', user.id)
+              .maybeSingle();
+              
+            if (error) {
+              console.error('Error fetching student profile:', error);
+              setError('Unable to verify your student profile. Please try again.');
+              return;
+            }
             
-          if (error) {
-            console.error('Error fetching student profile:', error);
-            setError('Unable to verify your student profile. Please try again.');
-            return;
-          }
-          
-          console.log("Student profile data:", data);
-          
-          if (data?.onboarding_completed) {
-            navigate('/student-dashboard', { replace: true });
+            // If no profile exists, send to onboarding
+            if (!data) {
+              navigate('/student-onboarding', { replace: true });
+            } else {
+              navigate('/student-dashboard', { replace: true });
+            }
           } else {
-            navigate('/student-onboarding', { replace: true });
+            // Existing user login - always go to dashboard
+            navigate('/student-dashboard', { replace: true });
           }
         } else {
-          // If no role is set yet, navigate to role selection
-          console.log("No role found, redirecting to role selection");
-          navigate('/role-select', { replace: true });
+          // If no role is set yet, navigate to role selection (only for new users)
+          if (isNewUser) {
+            console.log("New user with no role, redirecting to role selection");
+            navigate('/role-select', { replace: true });
+          } else {
+            // If existing user has no role (shouldn't happen normally), send to homepage
+            navigate('/', { replace: true });
+          }
         }
       } catch (err) {
-        console.error("Error checking onboarding status:", err);
+        console.error("Error checking user status:", err);
         setError('An unexpected error occurred. Please try again.');
-        
-        // If there's an error, try to recover based on role
-        if (role === 'tutor') {
-          navigate('/tutor-onboarding', { replace: true });
-        } else if (role === 'student') {
-          navigate('/student-onboarding', { replace: true });
-        } else {
-          navigate('/role-select', { replace: true });
-        }
       } finally {
-        setCheckingOnboarding(false);
+        setCheckingStatus(false);
       }
     };
 
     if (!isLoading) {
-      if (user && role) {
-        checkOnboardingStatus();
-      } else if (!user) {
+      if (user) {
+        checkUserStatus();
+      } else {
         // If not logged in, redirect to login
         navigate('/login', { replace: true });
       }
