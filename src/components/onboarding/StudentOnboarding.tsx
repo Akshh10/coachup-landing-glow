@@ -25,6 +25,7 @@ const MultiSelect = ({ options, value, onChange, placeholder }) => {
       onChange([...value, option]);
     }
     setInputValue('');
+     setIsOpen(false);
   };
   
   const handleRemove = (option) => {
@@ -99,7 +100,7 @@ const scheduleSchema = z.object({
 });
 
 const photoSchema = z.object({
-  photoUrl: z.string().optional(),
+  imageUrl: z.string().optional(),
 });
 
 // Sample data for dropdowns
@@ -143,7 +144,7 @@ const StudentOnboarding = () => {
     preferredMode: "",
     availability: "",
     useCase: "",
-    photoUrl: "",
+    imageUrl: "",
   });
   const [uploadedPhoto, setUploadedPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -200,7 +201,7 @@ const StudentOnboarding = () => {
   const photoForm = useForm<z.infer<typeof photoSchema>>({
     resolver: zodResolver(photoSchema),
     defaultValues: {
-      photoUrl: formData.photoUrl,
+      imageUrl: formData.imageUrl,
     },
   });
 
@@ -217,6 +218,7 @@ const StudentOnboarding = () => {
     }
   };
 
+
   // Handle form submission for each step
   const handleLearningInterestsSubmit = (values: z.infer<typeof learningInterestsSchema>) => {
     setFormData({ ...formData, ...values });
@@ -232,7 +234,7 @@ const StudentOnboarding = () => {
     setIsSubmitting(true);
 
     try {
-      let photoUrl = "";
+      let imageUrl = "";
       
       // Upload photo if available
       if (uploadedPhoto && user) {
@@ -251,7 +253,7 @@ const StudentOnboarding = () => {
           .from('student-photos')
           .getPublicUrl(fileName);
           
-        photoUrl = data.publicUrl;
+        imageUrl = data.publicUrl;
       }
       
       let preferredSubjects = [];
@@ -262,29 +264,31 @@ const StudentOnboarding = () => {
       } else if (formData.learningType === 'academics') {
         preferredSubjects = formData.subjects;
       }
-      
-      // Save all student profile data
+      console.log("Inserting with ID:", user?.id);
+
       const { error } = await supabase
-        .from('student_profiles')
-        .update({
-          preferred_subjects: preferredSubjects,
-          grade_level: formData.grade || null,
-          learning_goals: formData.learningGoal || null,
-          photo_url: photoUrl || null,
-          onboarding_completed: true
-        })
-        .eq('id', user?.id);
+      
+      .from('student_profiles')
+      .upsert([{
+        id: user?.id,
+        preferred_subjects: preferredSubjects,
+        grade_level: formData.grade || null,
+        learning_goals: formData.learningGoal || null,
+        profile_picture_url: imageUrl || null,
+        onboarding_completed: true
+      }]);
+    
 
       if (error) {
         throw error;
       }
 
       // Update the main profile photo as well
-      if (photoUrl) {
+      if (imageUrl) {
         const { error: profileError } = await supabase
           .from('profiles')
           .update({
-            profile_picture_url: photoUrl
+            profile_picture_url: imageUrl
           })
           .eq('id', user?.id);
           

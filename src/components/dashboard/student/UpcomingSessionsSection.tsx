@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Calendar, Clock, Video, MessageSquare, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,11 +19,13 @@ interface Session {
 interface UpcomingSessionsSectionProps {
   sessions: Session[];
   onTutorClick?: (tutorId: string) => void;
+  onJoinSession?: (sessionId: string) => void;
 }
 
 const UpcomingSessionsSection: React.FC<UpcomingSessionsSectionProps> = ({ 
   sessions, 
-  onTutorClick 
+  onTutorClick,
+  onJoinSession 
 }) => {
   return (
     <Card>
@@ -74,7 +75,9 @@ const UpcomingSessionsSection: React.FC<UpcomingSessionsSectionProps> = ({
                   </div>
                   
                   <div className="flex gap-2 md:ml-auto">
-                    <Button className="bg-accent h-10 px-4 py-2">
+                    <Button className="bg-accent h-10 px-4 py-2" 
+                     onClick={() => onJoinSession?.(session.id)}
+                      >
                       <Video className="mr-2 h-4 w-4" /> Join
                     </Button>
                     <Button variant="outline" className="h-10 px-4 py-2">

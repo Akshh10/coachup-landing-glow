@@ -25,6 +25,7 @@ const MultiSelect = ({ options, value, onChange, placeholder }) => {
       onChange([...value, option]);
     }
     setInputValue('');
+    setIsOpen(false);
   };
   
   const handleRemove = (option) => {
@@ -97,7 +98,7 @@ const bioSchema = z.object({
 });
 
 const photoSchema = z.object({
-  photoUrl: z.string().optional(),
+  imageUrl: z.string().optional(),
 });
 
 // Sample data for dropdowns
@@ -146,7 +147,7 @@ const TutorOnboarding = () => {
     hourlyRate: "",
     bio: "",
     studentTypes: [],
-    photoUrl: "",
+    imageUrl: "",
   });
   const [uploadedPhoto, setUploadedPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -201,7 +202,7 @@ const TutorOnboarding = () => {
   const photoForm = useForm<z.infer<typeof photoSchema>>({
     resolver: zodResolver(photoSchema),
     defaultValues: {
-      photoUrl: formData.photoUrl,
+      imageUrl: formData.imageUrl,
     },
   });
 
@@ -233,7 +234,7 @@ const TutorOnboarding = () => {
     setIsSubmitting(true);
 
     try {
-      let photoUrl = "";
+      let imageUrl = "";
       
       // Upload photo if available
       if (uploadedPhoto && user) {
@@ -252,35 +253,36 @@ const TutorOnboarding = () => {
           .from('tutor-photos')
           .getPublicUrl(fileName);
           
-        photoUrl = data.publicUrl;
+        imageUrl = data.publicUrl;
       }
       
       // Save all tutor profile data
       const { error } = await supabase
-        .from('tutor_profiles')
-        .update({
-          languages: formData.languages,
-          certifications: formData.certifications,
-          subjects: formData.skills,
-          experience: formData.bio,
-          teaching_mode: formData.teachingMode,
-          hourly_rate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : null,
-          target_students: formData.studentTypes,
-          photo_url: photoUrl || null,
-          onboarding_completed: true
-        })
-        .eq('id', user?.id);
+  .from('tutor_profiles')
+  .upsert([{
+    id: user?.id,
+    languages: formData.languages,
+    certifications: formData.certifications,
+    subjects: formData.skills,
+    experience: formData.bio,
+    teaching_mode: formData.teachingMode,
+    hourly_rate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : null,
+    target_students: formData.studentTypes,
+    profile_picture_url: imageUrl || null,
+    onboarding_completed: true
+  }]);
+
 
       if (error) {
         throw error;
       }
 
       // Update the main profile photo as well
-      if (photoUrl) {
+      if (imageUrl) {
         const { error: profileError } = await supabase
           .from('profiles')
           .update({
-            profile_picture_url: photoUrl
+            profile_picture_url: imageUrl
           })
           .eq('id', user?.id);
           

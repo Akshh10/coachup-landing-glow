@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Calendar, Clock, Video } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,9 +18,10 @@ interface Booking {
 
 interface BookingsSectionProps {
   bookings: Booking[];
+  onStartSession: (sessionId: string) => void;
 }
 
-const BookingsSection: React.FC<BookingsSectionProps> = ({ bookings }) => {
+const BookingsSection: React.FC<BookingsSectionProps> = ({ bookings, onStartSession }) => {
   const upcomingBookings = bookings.filter(booking => booking.status === "upcoming");
   
   return (
@@ -63,7 +63,10 @@ const BookingsSection: React.FC<BookingsSectionProps> = ({ bookings }) => {
                 </div>
                 
                 <div className="flex flex-col gap-2 w-full md:w-auto">
-                  <Button className="bg-accent">
+                  <Button 
+                    className="bg-accent"
+                    onClick={() => onStartSession(booking.id)}
+                  >
                     <Video className="mr-2 h-4 w-4" /> Start Session
                   </Button>
                   <Button variant="outline">Reschedule</Button>

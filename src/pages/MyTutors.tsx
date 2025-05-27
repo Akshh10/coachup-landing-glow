@@ -42,7 +42,7 @@ const MyTutors = () => {
       description: "You're being redirected to the booking page.",
     });
     
-    navigate(`/booking/${tutorId}`);
+    navigate(`/tutor/${tutorId}`);
   };
 
   // Loading state

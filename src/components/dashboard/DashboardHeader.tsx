@@ -1,11 +1,12 @@
-
-import React from "react";
+import React, { useState , useEffect} from "react";
 import { Bell, MessageSquare, Search, User, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import NotificationBell from "@/components/ui/NotificationBell";
+import ChatPopup from "@/components/ui/ChatPopup";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -26,23 +27,32 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   userImage 
 }) => {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+  const [showChat, setShowChat] = useState(false);
+  const [selectedPeerId, setSelectedPeerId] = useState("some-peer-id"); // Replace with actual peer logic
+  const location = useLocation();
+  useEffect(() => {
+    // Auto-assign a peer based on route (for demo purposes only)
+    if (location.pathname.includes("student-dashboard")) {
+      setSelectedPeerId("tutor-uuid-placeholder"); // Replace with actual tutor ID
+    } else if (location.pathname.includes("tutor-dashboard")) {
+      setSelectedPeerId("student-uuid-placeholder"); // Replace with actual student ID
+    }
+  }, [location.pathname]);
 
   const handleSignOut = async () => {
     await signOut();
-    toast({
-      title: "Signed out successfully",
-    });
+    toast({ title: "Signed out successfully" });
     navigate('/', { replace: true });
   };
 
   const handleMessageClick = () => {
-    toast({
-      title: "Messages",
-      description: "Message feature will be available soon!",
-    });
+    if (!selectedPeerId) {
+      toast({ title: "Error", description: "No peer selected to chat with." });
+      return;
+    }
+    setShowChat(true);
   };
-  
   const handleProfileClick = () => {
     navigate('/profile');
   };
@@ -60,29 +70,27 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="relative"
-            onClick={() => {
-              toast({
-                title: "Notifications",
-                description: "Notification feature will be available soon!",
-              });
-            }}
-          >
-            <Bell size={20} />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </Button>
-          
+        <div className="flex items-center gap-4">
+          <NotificationBell userId={user?.id} />
+
           <Button 
             variant="ghost" 
             size="icon"
-            onClick={handleMessageClick}
+            onClick={handleMessageClick}  className="relative"
           >
-            <MessageSquare size={20} />
-          </Button>
+            <MessageSquare className="h-5 w-5" />
+        {/* TODO: Add unread count badge here later */}
+      </Button>
+
+          {showChat && user?.id && (
+            <div className="fixed bottom-4 right-4 z-50 w-[400px] h-[500px] bg-white rounded-lg shadow-xl border resize overflow-hidden">
+            <ChatPopup
+              currentUserId={user.id}
+              peerId={selectedPeerId}
+              onClose={() => setShowChat(false)}
+            />
+          </div>
+          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

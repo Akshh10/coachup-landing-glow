@@ -8,6 +8,7 @@ import TutorDashboard from "./pages/TutorDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import TutorProfile from "./pages/TutorProfile";
 import BookingPage from "./pages/BookingPage";
+import LiveSession from "./pages/LiveSession";
 import { useAuth } from "@/hooks/useAuth";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
@@ -189,6 +190,7 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route path="/session" element={<LiveSession />} />
 
             {/* Catch-All Route */}
             <Route path="*" element={<NotFound />} />

@@ -36,32 +36,7 @@ My sessions are interactive and tailored to your specific needs. We'll work thro
       totalSessions: 540,
       availability: "Weekdays, Some Weekends"
     },
-    availableSlots: [
-      {
-        id: "1",
-        date: new Date(),
-        startTime: "3:00 PM",
-        endTime: "4:00 PM"
-      },
-      {
-        id: "2",
-        date: new Date(),
-        startTime: "5:00 PM",
-        endTime: "6:00 PM"
-      },
-      {
-        id: "3",
-        date: new Date(Date.now() + 86400000), // tomorrow
-        startTime: "2:00 PM",
-        endTime: "3:00 PM"
-      },
-      {
-        id: "4",
-        date: new Date(Date.now() + 86400000 * 2), // day after tomorrow
-        startTime: "4:00 PM",
-        endTime: "5:00 PM"
-      }
-    ],
+    
     reviews: [
       {
         id: "1",
@@ -109,10 +84,7 @@ My sessions are interactive and tailored to your specific needs. We'll work thro
               <TutorDetails details={tutor.details} />
             </div>
             
-            <TutorAvailability 
-              availableSlots={tutor.availableSlots}
-              onBookSlot={handleBookSlot}
-            />
+          
             
             <TutorReviews 
               reviews={tutor.reviews}

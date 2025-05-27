@@ -1,14 +1,14 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { ChevronDown, LogIn, UserPlus } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { 
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
+
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
@@ -52,10 +52,13 @@ const Navbar = () => {
   ];
   
   return (
-    <header className={cn(
-      "w-full py-4 px-6 md:px-10 flex items-center justify-between",
-      isHomepage ? "absolute top-0 left-0 z-50 bg-transparent" : "bg-white border-b"
-    )}>
+      <header
+    className={cn(
+      'w-full py-4 px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0',
+      'bg-white border-b shadow-sm'
+    )}
+  >
+    
       <div className="flex items-center">
         <Link to="/" className="text-2xl font-bold text-[#3E64FF]">
           UpSkill
@@ -70,11 +73,12 @@ const Navbar = () => {
                 Skills
               </NavigationMenuTrigger>
               <NavigationMenuContent className="bg-white p-4 rounded-md shadow-lg w-[500px] z-50">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="w-[20rem] p-4 grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
                   {skillCategories.map((category) => (
                     <div key={category.title}>
                       <h3 className="font-medium text-[#3E64FF] mb-2">{category.title}</h3>
-                      <ul className="space-y-1">
+                      
+                      <ul className="space-y-2">
                         {category.items.map((item) => (
                           <li key={item}>
                             <Link 

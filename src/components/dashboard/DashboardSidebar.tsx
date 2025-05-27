@@ -53,7 +53,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ userType }) => {
     { icon: <User size={20} />, label: "Profile", href: "/profile" },
     { icon: <Calendar size={20} />, label: "My Sessions", href: "/student-dashboard?tab=sessions" },
     { icon: <BookOpen size={20} />, label: "My Tutors", href: "/my-tutors" },
-    { icon: <Search size={20} />, label: "Find Tutors", href: "/student-dashboard?tab=find-tutors" },
+  
   ];
 
   const links = userType === "tutor" ? tutorLinks : studentLinks;
