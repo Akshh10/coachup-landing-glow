@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import WelcomeSection from "@/components/dashboard/student/WelcomeSection";
-import UpcomingSessionsSection from "@/components/dashboard/student/UpcomingSessionsSection";
+import UpcomingSessions from "@/components/dashboard/UpcomingSessions";
 import PreviousSessionsSection from "@/components/dashboard/student/PreviousSessionsSection";
 import RecommendedTutorsSection from "@/components/dashboard/student/RecommendedTutorsSection";
 import { toast } from "@/components/ui/use-toast";
@@ -17,7 +17,6 @@ const StudentDashboard: React.FC = () => {
   const tab = searchParams.get("tab") || "dashboard";
   const { user, profile } = useAuth();
   const [studentProfile, setStudentProfile] = useState<any>(null);
-  const [sessions, setSessions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,12 +25,13 @@ const StudentDashboard: React.FC = () => {
       const fetchStudentData = async () => {
         try {
           setIsLoading(true);
-          const [{ data: profileData }, { data: sessionsData }] = await Promise.all([
-            supabase.from('student_profiles').select('*').eq('id', user.id).maybeSingle(),
-            supabase.from('live_sessions').select('*').eq('student_id', user.id)
-          ]);
+          const { data: profileData } = await supabase
+            .from('student_profiles')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle();
+          
           setStudentProfile(profileData);
-          setSessions(sessionsData || []);
         } catch (err) {
           console.error('Dashboard load error:', err);
           setError('Failed to load dashboard');
@@ -47,10 +47,8 @@ const StudentDashboard: React.FC = () => {
   const studentData = {
     name: profile?.full_name || 'New Student',
     photo: profile?.profile_picture_url || "",
-    upcomingSessions: sessions.length,
-    completedSessions: 0,
-    preferredSubjects: studentProfile?.preferred_subjects || [],
     gradeLevel: studentProfile?.grade_level || 'Not specified',
+    preferredSubjects: studentProfile?.preferred_subjects || [],
     learningGoals: studentProfile?.learning_goals || [],
   };
 
@@ -71,21 +69,6 @@ const StudentDashboard: React.FC = () => {
       title: "Message feature",
       description: `Opening chat with ${tutorName}. This feature will be available soon!`
     });
-  };
-
-  const handleJoinSession = async (sessionId: string) => {
-    const { data, error } = await supabase
-      .from("live_sessions")
-      .select("room_url")
-      .eq("id", sessionId)
-      .single();
-
-    if (!data?.room_url) {
-      toast({ title: "Session not ready", description: "Missing room." });
-      return;
-    }
-
-    navigate(`/session?room=${encodeURIComponent(data.room_url)}`);
   };
 
   const renderEducationInfo = () => {
@@ -127,11 +110,7 @@ const StudentDashboard: React.FC = () => {
         return (
           <div className="space-y-6">
             {renderEducationInfo()}
-            <UpcomingSessionsSection 
-              sessions={sessions} 
-              onTutorClick={handleTutorClick}
-              onJoinSession={handleJoinSession as any} // temp fix until prop is typed
-            />
+            <UpcomingSessions userType="student" />
             <PreviousSessionsSection 
               sessions={[]} 
               onTutorClick={handleTutorClick}
@@ -152,8 +131,8 @@ const StudentDashboard: React.FC = () => {
           <div className="space-y-6">
             <WelcomeSection 
               studentName={studentData.name} 
-              upcomingSessions={studentData.upcomingSessions}
-              completedSessions={studentData.completedSessions}
+              upcomingSessions={0}
+              completedSessions={0}
               gradeLevel={studentData.gradeLevel}
               preferredSubjects={studentData.preferredSubjects}
               learningGoals={studentData.learningGoals}
@@ -161,11 +140,7 @@ const StudentDashboard: React.FC = () => {
               onAddSubject={() => {}}
             />
             {renderEducationInfo()}
-            <UpcomingSessionsSection 
-              sessions={sessions} 
-              onTutorClick={handleTutorClick} 
-              onJoinSession={handleJoinSession as any} // temp fix until prop is typed
-            />
+            <UpcomingSessions userType="student" />
           </div>
         );
     }

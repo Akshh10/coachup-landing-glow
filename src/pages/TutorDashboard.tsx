@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ProfileSection from "@/components/dashboard/tutor/ProfileSection";
-import BookingsSection from "@/components/dashboard/tutor/BookingsSection";
+import UpcomingSessions from "@/components/dashboard/UpcomingSessions";
 import AvailabilitySection from "@/components/dashboard/tutor/AvailabilitySection";
 import ReviewsSection from "@/components/dashboard/tutor/ReviewsSection";
 import EarningsSection from "@/components/dashboard/tutor/EarningsSection";
@@ -18,7 +18,6 @@ const TutorDashboard: React.FC = () => {
   const tab = searchParams.get("tab") || "dashboard";
   const { user, profile } = useAuth();
   const [tutorProfile, setTutorProfile] = useState<any>(null);
-  const [sessions, setSessions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,12 +26,13 @@ const TutorDashboard: React.FC = () => {
       const fetchTutorData = async () => {
         try {
           setIsLoading(true);
-          const [{ data: profileData }, { data: sessionsData }] = await Promise.all([
-            supabase.from('tutor_profiles').select('*').eq('id', user.id).maybeSingle(),
-            supabase.from('live_sessions').select('*').eq('tutor_id', user.id)
-          ]);
+          const { data: profileData } = await supabase
+            .from('tutor_profiles')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle();
+          
           setTutorProfile(profileData);
-          setSessions(sessionsData || []);
         } catch (err) {
           console.error('Dashboard load error:', err);
           setError('Failed to load dashboard');
@@ -48,26 +48,15 @@ const TutorDashboard: React.FC = () => {
   const combinedProfile = {
     name: profile?.full_name || 'New Tutor',
     photo: profile?.profile_picture_url || "",
-    title: "Tutor",
-    rating: 0,
     subjects: tutorProfile?.subjects || [],
+    experience: tutorProfile?.experience || 'Not specified',
     hourlyRate: tutorProfile?.hourly_rate || 0,
-    bio: tutorProfile?.bio || "No bio available yet."
+    availability: tutorProfile?.availability || {},
   };
 
   const handleStartSession = async (sessionId: string) => {
-    const { data, error } = await supabase
-      .from("live_sessions")
-      .select("room_url")
-      .eq("id", sessionId)
-      .single();
-
-    if (!data?.room_url) {
-      toast({ title: "Session not ready", description: "Missing room." });
-      return;
-    }
-
-    navigate(`/session?room=${encodeURIComponent(data.room_url)}`);
+    // Implement video call functionality here
+    console.log('Starting session:', sessionId);
   };
 
   const renderContent = () => {
@@ -75,7 +64,7 @@ const TutorDashboard: React.FC = () => {
       case "profile":
         return <ProfileSection profile={combinedProfile} />;
       case "bookings":
-        return <BookingsSection bookings={sessions} onStartSession={handleStartSession} />;
+        return <UpcomingSessions userType="tutor" />;
       case "availability":
         return <AvailabilitySection timeSlots={[]} />;
       case "reviews":
@@ -86,18 +75,36 @@ const TutorDashboard: React.FC = () => {
         return (
           <div className="space-y-6">
             <ProfileSection profile={combinedProfile} />
-            <BookingsSection bookings={sessions} onStartSession={handleStartSession} />
+            <UpcomingSessions userType="tutor" />
           </div>
         );
     }
   };
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Loading your dashboard...</h2>
+          <div className="mt-4 animate-pulse flex justify-center">
+            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1"></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1 animate-pulse delay-100"></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full mx-1 animate-pulse delay-200"></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="flex justify-center items-center h-screen text-red-500">{error}</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2 text-red-600">Error</h2>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
   }
 
   return (

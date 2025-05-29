@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Calendar, Clock, MessageSquare, User } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,12 +16,16 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { addHours, format } from "date-fns";
 
 interface BookingFormProps {
   tutorName: string;
   tutorPhoto?: string;
   subjects: string[];
   hourlyRate: number;
+  tutorId: string;
 }
 
 const timeSlots = [
@@ -35,30 +38,88 @@ const BookingForm: React.FC<BookingFormProps> = ({
   tutorName, 
   tutorPhoto,
   subjects, 
-  hourlyRate 
+  hourlyRate,
+  tutorId
 }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [duration, setDuration] = useState<number>(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedSubject || !selectedDate || !selectedTime) {
+    if (!selectedSubject || !selectedDate || !selectedTime || !user) {
       toast.error("Please fill in all required fields");
       return;
     }
+
+    setIsSubmitting(true);
     
-    // Here you would typically send the booking data to your backend
-    toast.success("Booking submitted successfully!");
-    
-    // Navigate back to student dashboard
-    setTimeout(() => {
-      navigate("/student-dashboard");
-    }, 2000);
+    try {
+      // Parse the selected time
+      const [time, period] = selectedTime.split(" ");
+      let [hours, minutes] = time.split(":").map(Number);
+      
+      // Convert to 24-hour format
+      if (period === "PM" && hours !== 12) hours += 12;
+      if (period === "AM" && hours === 12) hours = 0;
+      
+      // Create start time
+      const startTime = new Date(selectedDate);
+      startTime.setHours(hours, minutes, 0, 0);
+      
+      // Calculate end time based on duration
+      const endTime = addHours(startTime, duration);
+      
+      console.log('Creating booking with data:', {
+        student_id: user.id,
+        tutor_id: tutorId,
+        subject: selectedSubject,
+        start_time: startTime.toISOString(),
+        end_time: endTime.toISOString(),
+        status: 'pending',
+        note: message || null
+      });
+
+      // Insert booking into Supabase
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert({
+          student_id: user.id,
+          tutor_id: tutorId,
+          subject: selectedSubject,
+          start_time: startTime.toISOString(),
+          end_time: endTime.toISOString(),
+          status: 'pending',
+          note: message || null
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error creating booking:', error);
+        throw error;
+      }
+
+      console.log('Booking created successfully:', data);
+      
+      toast.success("Booking submitted successfully!");
+      
+      // Navigate back to student dashboard
+      setTimeout(() => {
+        navigate("/student-dashboard");
+      }, 2000);
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      toast.error("Failed to create booking. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -173,8 +234,12 @@ const BookingForm: React.FC<BookingFormProps> = ({
               </div>
             </div>
             
-            <Button type="submit" className="w-full">
-              Confirm Booking
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Confirm Booking"}
             </Button>
             
             <div className="text-center text-xs text-gray-500">

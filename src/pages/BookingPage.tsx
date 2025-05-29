@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -31,6 +30,7 @@ const BookingPage: React.FC = () => {
           tutorPhoto={tutor.photo}
           subjects={tutor.subjects}
           hourlyRate={tutor.hourlyRate}
+          tutorId={tutor.id}
         />
         
         <div className="mt-8 text-center">

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Edit, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,11 +9,10 @@ interface ProfileSectionProps {
   profile: {
     name: string;
     photo?: string;
-    title: string;
-    rating: number;
     subjects: string[];
+    experience: string;
     hourlyRate: number;
-    bio: string;
+    availability?: Record<string, any>;
   };
 }
 
@@ -38,20 +36,12 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ profile }) => {
           
           <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
             <h2 className="text-2xl font-bold">{profile.name}</h2>
-            <p className="text-gray-500">{profile.title}</p>
+            <p className="text-gray-500">Tutor</p>
             
             <div className="flex items-center mt-2 justify-center sm:justify-start">
               <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={16}
-                    fill={i < Math.floor(profile.rating) ? "#FFD700" : "none"}
-                    stroke={i < Math.floor(profile.rating) ? "#FFD700" : "#CBD5E0"}
-                  />
-                ))}
+                <span className="text-sm text-gray-600">Experience: {profile.experience}</span>
               </div>
-              <span className="ml-2 text-sm text-gray-600">{profile.rating.toFixed(1)}</span>
             </div>
           </div>
         </div>
@@ -66,7 +56,11 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ profile }) => {
           <div className="flex flex-col sm:flex-row justify-between gap-4 mt-4">
             <div>
               <h3 className="font-medium text-gray-700">About Me</h3>
-              <p className="mt-2 text-gray-600">{profile.bio}</p>
+              <p className="mt-2 text-gray-600">
+                {profile.experience !== 'Not specified' 
+                  ? `Experienced tutor with ${profile.experience} of teaching experience.`
+                  : 'No bio available yet.'}
+              </p>
             </div>
             
             <div className="sm:text-right">

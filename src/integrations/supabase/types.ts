@@ -127,12 +127,88 @@ export type Database = {
           },
         ]
       }
+      bookings: {
+        Row: {
+          calendar_event: string | null
+          created_at: string
+          end_time: string
+          id: string
+          note: string | null
+          room_url: string | null
+          session_summary: string | null
+          start_time: string
+          status: string
+          student_id: string
+          subject: string
+          tutor_id: string
+          updated_at: string
+          email_reminder: boolean | null
+        }
+        Insert: {
+          calendar_event?: string | null
+          created_at?: string
+          end_time: string
+          id?: string
+          note?: string | null
+          room_url?: string | null
+          session_summary?: string | null
+          start_time: string
+          status: string
+          student_id: string
+          subject: string
+          tutor_id: string
+          updated_at?: string
+          email_reminder?: boolean | null
+        }
+        Update: {
+          calendar_event?: string | null
+          created_at?: string
+          end_time?: string
+          id?: string
+          note?: string | null
+          room_url?: string | null
+          session_summary?: string | null
+          start_time?: string
+          status?: string
+          student_id?: string
+          subject?: string
+          tutor_id?: string
+          updated_at?: string
+          email_reminder?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_student_id_fkey"
+            columns: ["student_id"]
+            referencedBy: []
+            references: {
+              columns: ["id"]
+              isManyColumns: false
+              referencedRelation: "profiles"
+            }
+          },
+          {
+            foreignKeyName: "bookings_tutor_id_fkey"
+            columns: ["tutor_id"]
+            referencedBy: []
+            references: {
+              columns: ["id"]
+              isManyColumns: false
+              referencedRelation: "profiles"
+            }
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      handle_updated_at:
+        {
+          Args: {}
+          Returns: Trigger
+        }
     }
     Enums: {
       user_role: "student" | "tutor"
@@ -255,3 +331,8 @@ export const Constants = {
     },
   },
 } as const
+
+export type Bookings = Database['public']['Tables']['bookings']['Row']
+export type Profiles = Database['public']['Tables']['profiles']['Row']
+export type StudentProfiles = Database['public']['Tables']['student_profiles']['Row']
+export type TutorProfiles = Database['public']['Tables']['tutor_profiles']['Row']
