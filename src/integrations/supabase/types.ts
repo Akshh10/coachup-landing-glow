@@ -199,6 +199,63 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          id: string
+          recipient_id: string
+          sender_id: string
+          content: string
+          type: string
+          link: string | null
+          is_read: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          recipient_id: string
+          sender_id: string
+          content: string
+          type: string
+          link?: string | null
+          is_read?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          recipient_id?: string
+          sender_id?: string
+          content?: string
+          type?: string
+          link?: string | null
+          is_read?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            referencedBy: []
+            references: {
+              columns: ["id"]
+              isManyColumns: false
+              referencedRelation: "profiles"
+            }
+          },
+          {
+            foreignKeyName: "notifications_sender_id_fkey"
+            columns: ["sender_id"]
+            referencedBy: []
+            references: {
+              columns: ["id"]
+              isManyColumns: false
+              referencedRelation: "profiles"
+            }
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never

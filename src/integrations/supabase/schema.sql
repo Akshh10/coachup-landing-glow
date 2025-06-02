@@ -82,4 +82,50 @@ create policy "Users can view other profiles"
       where (bookings.student_id = profiles.id or bookings.tutor_id = profiles.id)
       and (bookings.student_id = auth.uid() or bookings.tutor_id = auth.uid())
     )
-  ); 
+  );
+
+-- Create notifications table
+create table public.notifications (
+  id uuid default gen_random_uuid() primary key,
+  recipient_id uuid references public.profiles(id) not null,
+  sender_id uuid references public.profiles(id) not null,
+  content text not null,
+  type text not null,
+  link text,
+  is_read boolean default false,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+
+-- Add RLS policies for notifications
+alter table public.notifications enable row level security;
+
+-- Drop existing policies if they exist
+drop policy if exists "Users can view their own notifications" on public.notifications;
+drop policy if exists "Users can insert notifications" on public.notifications;
+drop policy if exists "Users can update their own notifications" on public.notifications;
+
+-- Create new policies
+create policy "Users can view their own notifications"
+  on public.notifications for select
+  using (
+    auth.uid() = recipient_id
+  );
+
+create policy "Users can insert notifications"
+  on public.notifications for insert
+  with check (
+    auth.uid() = sender_id
+  );
+
+create policy "Users can update their own notifications"
+  on public.notifications for update
+  using (
+    auth.uid() = recipient_id
+  );
+
+-- Create trigger for updated_at on notifications
+create trigger handle_updated_at
+  before update on public.notifications
+  for each row
+  execute procedure public.handle_updated_at(); 

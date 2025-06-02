@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import TutorHeader from "@/components/profile/TutorHeader";
@@ -8,66 +7,69 @@ import TutorDetails from "@/components/profile/TutorDetails";
 import TutorAvailability from "@/components/profile/TutorAvailability";
 import TutorReviews from "@/components/profile/TutorReviews";
 import BookingCTA from "@/components/profile/BookingCTA";
+import { supabase } from "@/integrations/supabase/client"; // Import supabase client
+
+// Define a type for the tutor data structure based on your Supabase table
+interface TutorProfileData {
+  id: string;
+  full_name: string | null;
+  profile_picture_url: string | null;
+  subjects: string[] | null;
+  rating: number | null;
+  total_reviews: number | null;
+  is_verified: boolean | null;
+  is_top_rated: boolean | null;
+  headline: string | null;
+  bio: string | null;
+  hourly_rate: number | null;
+  experience: number | null; // years
+  education: string | null;
+  languages: string[] | null;
+  total_sessions_completed: number | null;
+  availability: string | null; // e.g. "Weekdays, Evenings"
+}
 
 const TutorProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  
-  // Mock data
-  const tutor = {
-    id: id || "1",
-    name: "Dr. Sarah Johnson",
-    photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1760&q=80",
-    subjects: ["Physics", "Calculus", "Algebra", "Quantum Mechanics"],
-    rating: 4.9,
-    totalReviews: 124,
-    isVerified: true,
-    isTopRated: true,
-    headline: "PhD in Theoretical Physics | 8+ Years Teaching Experience",
-    bio: `I'm a passionate physics and mathematics educator with a PhD in Theoretical Physics from MIT. My teaching philosophy centers on building intuition and deep understanding, rather than rote memorization.
+  const [tutor, setTutor] = useState<TutorProfileData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-Over the past 8 years, I've helped hundreds of students achieve their academic goals, from high school physics to graduate-level quantum mechanics. I believe every student can excel in STEM subjects with the right guidance and support.
+  useEffect(() => {
+    if (!id) {
+      setError("Tutor ID is missing.");
+      setIsLoading(false);
+      return;
+    }
 
-My sessions are interactive and tailored to your specific needs. We'll work through concepts, solve problems together, and develop strategies to help you succeed in your courses and beyond.`,
-    details: {
-      hourlyRate: 45,
-      experience: 8,
-      education: "PhD in Theoretical Physics, MIT",
-      languages: ["English", "Spanish", "Mandarin"],
-      totalSessions: 540,
-      availability: "Weekdays, Some Weekends"
-    },
-    
-    reviews: [
-      {
-        id: "1",
-        studentName: "Alex Johnson",
-        studentPhoto: "https://i.pravatar.cc/150?u=alex",
-        rating: 5,
-        date: "May 20, 2023",
-        comment: "Dr. Johnson's approach to explaining quantum mechanics was incredibly helpful. She broke down complex topics into manageable parts and was very patient with my questions.",
-        subject: "Physics"
-      },
-      {
-        id: "2",
-        studentName: "Jessica Wang",
-        studentPhoto: "https://i.pravatar.cc/150?u=jessica",
-        rating: 5,
-        date: "April 15, 2023",
-        comment: "I was struggling with calculus for months before I found Sarah. Her teaching style is clear and she provides great examples. My grades improved from a C to an A-!",
-        subject: "Calculus"
-      },
-      {
-        id: "3",
-        studentName: "Marcus Chen",
-        studentPhoto: "https://i.pravatar.cc/150?u=marcus",
-        rating: 4,
-        date: "March 28, 2023",
-        comment: "Very knowledgeable and patient tutor. Helped me prepare for my physics exam with great practice problems and explanations.",
-        subject: "Physics"
+    const fetchTutor = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('tutor_profiles') // Assuming your tutor data is in a 'tutor_profiles' table
+          .select('*')
+          .eq('id', id)
+          .single(); // Use single() to get a single record
+
+        if (error) {
+          console.error("Error fetching tutor:", error);
+          setError("Failed to load tutor profile.");
+          toast.error("Failed to load tutor profile.");
+        } else {
+          setTutor(data as TutorProfileData); // Cast data to the defined type
+        }
+      } catch (err) {
+        console.error("An unexpected error occurred:", err);
+        setError("An unexpected error occurred.");
+        toast.error("An unexpected error occurred.");
+      } finally {
+        setIsLoading(false);
       }
-    ]
-  };
-  
+    };
+
+    fetchTutor();
+  }, [id]); // Rerun effect if id changes
+
   const handleBookSlot = (slotId: string) => {
     window.location.href = `/booking/${id}?slot=${slotId}`;
   };
@@ -80,25 +82,25 @@ My sessions are interactive and tailored to your specific needs. We'll work thro
             <TutorHeader tutor={tutor} />
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TutorBio bio={tutor.bio} />
-              <TutorDetails details={tutor.details} />
+              <TutorBio bio={tutor?.bio} />
+              <TutorDetails details={tutor} />
             </div>
             
           
             
             <TutorReviews 
-              reviews={tutor.reviews}
-              averageRating={tutor.rating}
-              totalReviews={tutor.totalReviews}
+              reviews={[]}
+              averageRating={tutor?.rating || 0}
+              totalReviews={tutor?.total_reviews || 0}
             />
           </div>
           
           <div className="lg:col-span-1">
             <div className="sticky top-6">
               <BookingCTA 
-                hourlyRate={tutor.details.hourlyRate}
-                tutorId={tutor.id}
-                subjects={tutor.subjects}
+                hourlyRate={tutor?.hourly_rate || 0}
+                tutorId={tutor?.id || ""}
+                subjects={tutor?.subjects || []}
               />
             </div>
           </div>
